@@ -84,7 +84,8 @@ echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8');  // 安全！
 **なぜ必要？**
 
 悪意のあるユーザーが以下を入力したら：
-```
+
+```text
 <script>alert('攻撃！')</script>
 ```
 

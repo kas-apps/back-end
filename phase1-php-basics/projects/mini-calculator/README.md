@@ -33,7 +33,7 @@ Phase 1で学んだ以下の知識をすべて使います：
 
 ## 📁 ファイル構成
 
-```
+```text
 mini-calculator/
 ├── README.md          # このファイル
 ├── index.php          # メインファイル（フォームと結果表示）
