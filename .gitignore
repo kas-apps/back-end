@@ -1,3 +1,6 @@
+# Claude Code設定（個人設定なので除外）
+.claude/
+
 # macOS固有ファイル
 .DS_Store
 .AppleDouble
