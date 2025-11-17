@@ -80,7 +80,7 @@ if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] === UPLOAD_ERR_OK
         die("エラー：CSVファイルのみアップロード可能です");
     }
 
-    // MIMEタイプチェック
+    // MIMEタイプチェック（finfoはmime_content_typeより推奨される方法です）
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $mimeType = finfo_file($finfo, $tmpPath);
     finfo_close($finfo);
