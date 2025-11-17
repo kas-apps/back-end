@@ -185,8 +185,11 @@ if ($handle) {
     // ファイルサイズを取得
     $fileSize = filesize("data/sample.txt");
 
-    // 全部読み込む
-    $content = fread($handle, $fileSize);
+    // ファイルの終わりまで4KBずつ読み込む
+    $content = '';
+    while (!feof($handle)) {
+        $content .= fread($handle, 4096);
+    }
 
     // ファイルを閉じる（重要！）
     fclose($handle);
