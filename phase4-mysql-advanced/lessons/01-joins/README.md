@@ -38,7 +38,7 @@ Phase 3で学んだテーブル設計では、データの重複を避けるた�
 
 これを実現するのが**JOIN（結合）**！
 
-### JOINがないと...
+### JOINがないと…
 
 **悪い方法**（JOINなし）：
 
@@ -176,9 +176,9 @@ usersテーブル：
 
 | id  | name | email               |
 | --- | ---- | ------------------- |
-| 1   | 太郎 | taro@example.com    |
-| 2   | 花子 | hanako@example.com  |
-| 3   | 次郎 | jiro@example.com    |
+| 1   | 太郎 | <taro@example.com>    |
+| 2   | 花子 | <hanako@example.com>  |
+| 3   | 次郎 | <jiro@example.com>    |
 
 postsテーブル：
 
