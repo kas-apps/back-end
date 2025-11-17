@@ -176,9 +176,11 @@ usersテーブル：
 
 | id  | name | email               |
 | --- | ---- | ------------------- |
-| 1   | 太郎 | <taro@example.com>    |
-| 2   | 花子 | <hanako@example.com>  |
-| 3   | 次郎 | <jiro@example.com>    |
+| id  | name | email              |
+| --- | ---- | ------------------ |
+| 1   | 太郎 | `taro@example.com` |
+| 2   | 花子 | `hanako@example.com` |
+| 3   | 次郎 | `jiro@example.com` |
 
 postsテーブル：
 
