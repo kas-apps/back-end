@@ -5,8 +5,8 @@
 ### ポイント
 
 ```php
-// セキュアなCookie設定
-setcookie('theme', $theme, time() + (86400 * 30), '/', '', false, true, 'Lax');
+// セキュアなCookie設定（本番環境ではsecureフラグをtrueに）
+setcookie('theme', $theme, time() + (86400 * 30), '/', '', true, true, 'Lax');
 ```
 
 ---
