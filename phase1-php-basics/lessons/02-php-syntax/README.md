@@ -335,7 +335,7 @@ echo "こんにちは、" . $fullName . "さん！";
 $a = 10;
 $b = 5;
 
-$a == $b   // false（等しい）
+$a == $b   // false（等しくない）
 $a != $b   // true（等しくない）
 $a > $b    // true（より大きい）
 $a < $b    // false（より小さい）
