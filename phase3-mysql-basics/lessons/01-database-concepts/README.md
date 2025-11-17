@@ -123,6 +123,7 @@
 Excelのシートと同じイメージ！
 
 例：
+
 - `users`テーブル：ユーザー情報を格納
 - `posts`テーブル：投稿情報を格納
 - `comments`テーブル：コメント情報を格納
@@ -134,6 +135,7 @@ Excelのシートと同じイメージ！
 Excelの列と同じイメージ！
 
 usersテーブルの例：
+
 - `id`カラム：ユーザーID
 - `name`カラム：ユーザー名
 - `email`カラム：メールアドレス
@@ -146,6 +148,7 @@ usersテーブルの例：
 Excelの行と同じイメージ！
 
 例：
+
 ```text
 id: 1, name: "太郎", email: "taro@example.com", created_at: "2024-01-01 10:00:00"
 ```
@@ -156,9 +159,9 @@ id: 1, name: "太郎", email: "taro@example.com", created_at: "2024-01-01 10:00:
 
 | id  | name | email               | created_at          |
 | --- | ---- | ------------------- | ------------------- |
-| 1   | 太郎 | taro@example.com    | 2024-01-01 10:00:00 |
-| 2   | 花子 | hanako@example.com  | 2024-01-02 11:00:00 |
-| 3   | 次郎 | jiro@example.com    | 2024-01-03 12:00:00 |
+| 1   | 太郎 | <taro@example.com>    | 2024-01-01 10:00:00 |
+| 2   | 花子 | <hanako@example.com>  | 2024-01-02 11:00:00 |
+| 3   | 次郎 | <jiro@example.com>    | 2024-01-03 12:00:00 |
 
 - **テーブル名**：`users`
 - **カラム**：`id`, `name`, `email`, `created_at`（列）
@@ -186,9 +189,9 @@ id: 1, name: "太郎", email: "taro@example.com", created_at: "2024-01-01 10:00:
 
 | id（主キー）| name | email               |
 | ----------- | ---- | ------------------- |
-| 1           | 太郎 | taro@example.com    |
-| 2           | 花子 | hanako@example.com  |
-| 3           | 次郎 | jiro@example.com    |
+| 1           | 太郎 | <taro@example.com>    |
+| 2           | 花子 | <hanako@example.com>  |
+| 3           | 次郎 | <jiro@example.com>    |
 
 `id`が主キー！これで「太郎さんは1番」「花子さんは2番」って区別できる。
 
@@ -267,9 +270,9 @@ id: 1, name: "太郎", email: "taro@example.com", created_at: "2024-01-01 10:00:
 
 | id  | user_name | user_email          | title        | content      |
 | --- | --------- | ------------------- | ------------ | ------------ |
-| 1   | 太郎      | taro@example.com    | 初投稿       | よろしく！   |
-| 2   | 太郎      | taro@example.com    | 2つ目        | 元気です     |
-| 3   | 太郎      | taro@example.com    | 3つ目        | こんにちは   |
+| 1   | 太郎      | <taro@example.com>    | 初投稿       | よろしく！   |
+| 2   | 太郎      | <taro@example.com>    | 2つ目        | 元気です     |
+| 3   | 太郎      | <taro@example.com>    | 3つ目        | こんにちは   |
 
 **問題点**：
 
@@ -283,7 +286,7 @@ id: 1, name: "太郎", email: "taro@example.com", created_at: "2024-01-01 10:00:
 
 | id  | name | email            |
 | --- | ---- | ---------------- |
-| 1   | 太郎 | taro@example.com |
+| 1   | 太郎 | <taro@example.com> |
 
 **postsテーブル**：
 
@@ -336,8 +339,8 @@ id（主キー）, name, email, created_at
 
 | id  | name | email               | created_at          |
 | --- | ---- | ------------------- | ------------------- |
-| 1   | 太郎 | taro@example.com    | 2024-01-01 10:00:00 |
-| 2   | 花子 | hanako@example.com  | 2024-01-02 11:00:00 |
+| 1   | 太郎 | <taro@example.com>    | 2024-01-01 10:00:00 |
+| 2   | 花子 | <hanako@example.com>  | 2024-01-02 11:00:00 |
 
 **postsテーブル**：
 

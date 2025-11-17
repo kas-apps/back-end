@@ -108,6 +108,7 @@ products（複数の商品）
 **主キー**：`id`
 
 **外部キー**：
+
 - `category_id` → `categories(id)`を参照
 - `supplier_id` → `suppliers(id)`を参照
 
@@ -163,9 +164,9 @@ products（複数の商品）
 
 | id  | name           | email                   | phone          |
 | --- | -------------- | ----------------------- | -------------- |
-| 1   | テクノサプライ | info@techno-supply.com  | 03-1234-5678   |
-| 2   | フードマート   | contact@foodmart.com    | 03-2345-6789   |
-| 3   | ユニバーサル商事 | sales@universal-trade.com | 03-3456-7890   |
+| 1   | テクノサプライ | <info@techno-supply.com>  | 03-1234-5678   |
+| 2   | フードマート   | <contact@foodmart.com>    | 03-2345-6789   |
+| 3   | ユニバーサル商事 | <sales@universal-trade.com> | 03-3456-7890   |
 
 ### products（10件の商品）
 
@@ -205,7 +206,7 @@ products（複数の商品）
 以下のデータを挿入してください：
 
 1. 新しいカテゴリを追加（name: "玩具", description: "玩具・ゲーム"）
-2. 新しい仕入先を追加（name: "トイズカンパニー", email: "info@toys.com", phone: "03-4567-8901"）
+2. 新しい仕入先を追加（name: "トイズカンパニー", email: "<info@toys.com>", phone: "03-4567-8901"）
 3. 新しい商品を追加（category_id: 6（玩具）, supplier_id: 4（トイズカンパニー）, name: "パズル", sku: "TOY001", price: 2500.00, stock: 30）
 
 ### 課題3: データの更新
@@ -214,7 +215,7 @@ products（複数の商品）
 
 1. 商品「ノートパソコン」の価格を80000.00円に値下げ
 2. 商品「コーヒー豆（500g）」の在庫を30個に更新
-3. 仕入先「フードマート」のメールアドレスを「info@foodmart.com」に変更
+3. 仕入先「フードマート」のメールアドレスを「<info@foodmart.com>」に変更
 
 ### 課題4: データの削除
 

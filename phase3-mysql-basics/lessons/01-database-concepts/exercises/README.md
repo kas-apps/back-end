@@ -35,9 +35,9 @@
 
 | student_id | name | email               | phone        |
 | ---------- | ---- | ------------------- | ------------ |
-| 1          | 太郎 | taro@example.com    | 090-1234-5678|
-| 2          | 花子 | hanako@example.com  | 090-2345-6789|
-| 3          | 次郎 | jiro@example.com    | 090-3456-7890|
+| 1          | 太郎 | <taro@example.com>    | 090-1234-5678|
+| 2          | 花子 | <hanako@example.com>  | 090-2345-6789|
+| 3          | 次郎 | <jiro@example.com>    | 090-3456-7890|
 
 **選択肢**：
 
@@ -128,9 +128,9 @@
 
 | id  | customer_name | customer_email      | customer_phone | product_name | price |
 | --- | ------------- | ------------------- | -------------- | ------------ | ----- |
-| 1   | 太郎          | taro@example.com    | 090-1111-1111  | ノートPC     | 80000 |
-| 2   | 太郎          | taro@example.com    | 090-1111-1111  | マウス       | 2000  |
-| 3   | 花子          | hanako@example.com  | 090-2222-2222  | キーボード   | 5000  |
+| 1   | 太郎          | <taro@example.com>    | 090-1111-1111  | ノートPC     | 80000 |
+| 2   | 太郎          | <taro@example.com>    | 090-1111-1111  | マウス       | 2000  |
+| 3   | 花子          | <hanako@example.com>  | 090-2222-2222  | キーボード   | 5000  |
 
 **質問**：
 

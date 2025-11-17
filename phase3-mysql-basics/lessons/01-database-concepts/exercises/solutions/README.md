@@ -408,7 +408,7 @@ tasks（複数のタスク）
 
 | id  | name | email            |
 | --- | ---- | ---------------- |
-| 1   | 太郎 | taro@example.com |
+| 1   | 太郎 | <taro@example.com> |
 
 **projects**：
 

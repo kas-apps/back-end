@@ -103,6 +103,7 @@ posts（複数の投稿）
 **主キー**：`id`
 
 **外部キー**：
+
 - `user_id` → `users(id)`を参照
 - `category_id` → `categories(id)`を参照
 
@@ -142,9 +143,9 @@ posts（複数の投稿）
 
 | id  | username | email                 |
 | --- | -------- | --------------------- |
-| 1   | taro     | taro@example.com      |
-| 2   | hanako   | hanako@example.com    |
-| 3   | jiro     | jiro@example.com      |
+| 1   | taro     | <taro@example.com>      |
+| 2   | hanako   | <hanako@example.com>    |
+| 3   | jiro     | <jiro@example.com>      |
 
 ### categories（5つのカテゴリ）
 
@@ -189,7 +190,7 @@ posts（複数の投稿）
 
 以下のデータを挿入してください：
 
-1. 新しいユーザーを追加（username: "keiko", email: "keiko@example.com"）
+1. 新しいユーザーを追加（username: "keiko", email: "<keiko@example.com>"）
 2. 新しいカテゴリを追加（name: "スポーツ"）
 3. 新しい投稿を追加（user_id: 4（keiko）, category_id: 6（スポーツ）, title: "ランニングのすすめ", content: "毎朝走っています！"）
 
@@ -197,7 +198,7 @@ posts（複数の投稿）
 
 以下のデータを更新してください：
 
-1. ユーザー「taro」のメールアドレスを「newtaro@example.com」に変更
+1. ユーザー「taro」のメールアドレスを「<newtaro@example.com>」に変更
 2. 投稿「PHP入門」のタイトルを「PHP入門 - 基礎編」に変更
 3. カテゴリ「技術」の名前を「テクノロジー」に変更
 

@@ -234,11 +234,11 @@ SELECT * FROM users;
 
 | id  | name     | email                | age | created_at          |
 | --- | -------- | -------------------- | --- | ------------------- |
-| 1   | 山田太郎 | taro@example.com     | 25  | 2024-01-01 10:00:00 |
-| 2   | 佐藤花子 | hanako@example.com   | 30  | 2024-01-01 10:01:00 |
-| 3   | 鈴木一郎 | ichiro@example.com   | 28  | 2024-01-01 10:02:00 |
-| 4   | 田中次郎 | jiro@example.com     | 35  | 2024-01-01 10:03:00 |
-| 5   | 高橋美咲 | misaki@example.com   | 22  | 2024-01-01 10:04:00 |
+| 1   | 山田太郎 | <taro@example.com>     | 25  | 2024-01-01 10:00:00 |
+| 2   | 佐藤花子 | <hanako@example.com>   | 30  | 2024-01-01 10:01:00 |
+| 3   | 鈴木一郎 | <ichiro@example.com>   | 28  | 2024-01-01 10:02:00 |
+| 4   | 田中次郎 | <jiro@example.com>     | 35  | 2024-01-01 10:03:00 |
+| 5   | 高橋美咲 | <misaki@example.com>   | 22  | 2024-01-01 10:04:00 |
 
 **ポイント**：
 
@@ -256,11 +256,11 @@ SELECT name, email FROM users;
 
 | name     | email                |
 | -------- | -------------------- |
-| 山田太郎 | taro@example.com     |
-| 佐藤花子 | hanako@example.com   |
-| 鈴木一郎 | ichiro@example.com   |
-| 田中次郎 | jiro@example.com     |
-| 高橋美咲 | misaki@example.com   |
+| 山田太郎 | <taro@example.com>     |
+| 佐藤花子 | <hanako@example.com>   |
+| 鈴木一郎 | <ichiro@example.com>   |
+| 田中次郎 | <jiro@example.com>     |
+| 高橋美咲 | <misaki@example.com>   |
 
 **ポイント**：
 
@@ -278,8 +278,8 @@ SELECT * FROM users WHERE age >= 30;
 
 | id  | name     | email              | age | created_at          |
 | --- | -------- | ------------------ | --- | ------------------- |
-| 2   | 佐藤花子 | hanako@example.com | 30  | 2024-01-01 10:01:00 |
-| 4   | 田中次郎 | jiro@example.com   | 35  | 2024-01-01 10:03:00 |
+| 2   | 佐藤花子 | <hanako@example.com> | 30  | 2024-01-01 10:01:00 |
+| 4   | 田中次郎 | <jiro@example.com>   | 35  | 2024-01-01 10:03:00 |
 
 **WHERE句の条件演算子**：
 
@@ -309,9 +309,9 @@ SELECT * FROM users WHERE age BETWEEN 25 AND 30;
 
 | id  | name     | email              | age | created_at          |
 | --- | -------- | ------------------ | --- | ------------------- |
-| 1   | 山田太郎 | taro@example.com   | 25  | 2024-01-01 10:00:00 |
-| 2   | 佐藤花子 | hanako@example.com | 30  | 2024-01-01 10:01:00 |
-| 3   | 鈴木一郎 | ichiro@example.com | 28  | 2024-01-01 10:02:00 |
+| 1   | 山田太郎 | <taro@example.com>   | 25  | 2024-01-01 10:00:00 |
+| 2   | 佐藤花子 | <hanako@example.com> | 30  | 2024-01-01 10:01:00 |
+| 3   | 鈴木一郎 | <ichiro@example.com> | 28  | 2024-01-01 10:02:00 |
 
 ```sql
 -- 年齢が25歳、または30歳のユーザーを取得
@@ -332,8 +332,8 @@ SELECT * FROM users WHERE name LIKE '%田%';
 
 | id  | name     | email            | age | created_at          |
 | --- | -------- | ---------------- | --- | ------------------- |
-| 1   | 山田太郎 | taro@example.com | 25  | 2024-01-01 10:00:00 |
-| 4   | 田中次郎 | jiro@example.com | 35  | 2024-01-01 10:03:00 |
+| 1   | 山田太郎 | <taro@example.com> | 25  | 2024-01-01 10:00:00 |
+| 4   | 田中次郎 | <jiro@example.com> | 35  | 2024-01-01 10:03:00 |
 
 **LIKEのパターン**：
 
@@ -375,9 +375,9 @@ SELECT * FROM users LIMIT 3 OFFSET 1;
 
 | id  | name     | email              | age | created_at          |
 | --- | -------- | ------------------ | --- | ------------------- |
-| 1   | 山田太郎 | taro@example.com   | 25  | 2024-01-01 10:00:00 |
-| 2   | 佐藤花子 | hanako@example.com | 30  | 2024-01-01 10:01:00 |
-| 3   | 鈴木一郎 | ichiro@example.com | 28  | 2024-01-01 10:02:00 |
+| 1   | 山田太郎 | <taro@example.com>   | 25  | 2024-01-01 10:00:00 |
+| 2   | 佐藤花子 | <hanako@example.com> | 30  | 2024-01-01 10:01:00 |
+| 3   | 鈴木一郎 | <ichiro@example.com> | 28  | 2024-01-01 10:02:00 |
 
 **ポイント**：
 
@@ -395,9 +395,9 @@ SELECT * FROM users WHERE age >= 25 ORDER BY age ASC LIMIT 3;
 
 | id  | name     | email              | age | created_at          |
 | --- | -------- | ------------------ | --- | ------------------- |
-| 1   | 山田太郎 | taro@example.com   | 25  | 2024-01-01 10:00:00 |
-| 3   | 鈴木一郎 | ichiro@example.com | 28  | 2024-01-01 10:02:00 |
-| 2   | 佐藤花子 | hanako@example.com | 30  | 2024-01-01 10:01:00 |
+| 1   | 山田太郎 | <taro@example.com>   | 25  | 2024-01-01 10:00:00 |
+| 3   | 鈴木一郎 | <ichiro@example.com> | 28  | 2024-01-01 10:02:00 |
+| 2   | 佐藤花子 | <hanako@example.com> | 30  | 2024-01-01 10:01:00 |
 
 ---
 
@@ -422,7 +422,7 @@ UPDATE users SET age = 26 WHERE id = 1;
 
 | id  | name     | email            | age | created_at          |
 | --- | -------- | ---------------- | --- | ------------------- |
-| 1   | 山田太郎 | taro@example.com | 26  | 2024-01-01 10:00:00 |
+| 1   | 山田太郎 | <taro@example.com> | 26  | 2024-01-01 10:00:00 |
 
 **ポイント**：
 
@@ -440,7 +440,7 @@ UPDATE users SET name = '佐藤桜', email = 'sakura@example.com' WHERE id = 2;
 
 | id  | name   | email                | age | created_at          |
 | --- | ------ | -------------------- | --- | ------------------- |
-| 2   | 佐藤桜 | sakura@example.com   | 30  | 2024-01-01 10:01:00 |
+| 2   | 佐藤桜 | <sakura@example.com>   | 30  | 2024-01-01 10:01:00 |
 
 ### 実例3：条件に合う複数のレコードを更新
 
@@ -453,8 +453,8 @@ UPDATE users SET age = age + 1 WHERE age >= 30;
 
 | id  | name     | email              | age | created_at          |
 | --- | -------- | ------------------ | --- | ------------------- |
-| 2   | 佐藤桜   | sakura@example.com | 31  | 2024-01-01 10:01:00 |
-| 4   | 田中次郎 | jiro@example.com   | 36  | 2024-01-01 10:03:00 |
+| 2   | 佐藤桜   | <sakura@example.com> | 31  | 2024-01-01 10:01:00 |
+| 4   | 田中次郎 | <jiro@example.com>   | 36  | 2024-01-01 10:03:00 |
 
 **ポイント**：
 
@@ -499,10 +499,10 @@ DELETE FROM users WHERE id = 5;
 
 | id  | name     | email              | age | created_at          |
 | --- | -------- | ------------------ | --- | ------------------- |
-| 1   | 山田太郎 | taro@example.com   | 26  | 2024-01-01 10:00:00 |
-| 2   | 佐藤桜   | sakura@example.com | 31  | 2024-01-01 10:01:00 |
-| 3   | 鈴木一郎 | ichiro@example.com | 28  | 2024-01-01 10:02:00 |
-| 4   | 田中次郎 | jiro@example.com   | 36  | 2024-01-01 10:03:00 |
+| 1   | 山田太郎 | <taro@example.com>   | 26  | 2024-01-01 10:00:00 |
+| 2   | 佐藤桜   | <sakura@example.com> | 31  | 2024-01-01 10:01:00 |
+| 3   | 鈴木一郎 | <ichiro@example.com> | 28  | 2024-01-01 10:02:00 |
+| 4   | 田中次郎 | <jiro@example.com>   | 36  | 2024-01-01 10:03:00 |
 
 **ポイント**：
 
@@ -520,9 +520,9 @@ DELETE FROM users WHERE age >= 35;
 
 | id  | name     | email              | age | created_at          |
 | --- | -------- | ------------------ | --- | ------------------- |
-| 1   | 山田太郎 | taro@example.com   | 26  | 2024-01-01 10:00:00 |
-| 2   | 佐藤桜   | sakura@example.com | 31  | 2024-01-01 10:01:00 |
-| 3   | 鈴木一郎 | ichiro@example.com | 28  | 2024-01-01 10:02:00 |
+| 1   | 山田太郎 | <taro@example.com>   | 26  | 2024-01-01 10:00:00 |
+| 2   | 佐藤桜   | <sakura@example.com> | 31  | 2024-01-01 10:01:00 |
+| 3   | 鈴木一郎 | <ichiro@example.com> | 28  | 2024-01-01 10:02:00 |
 
 **ポイント**：
 

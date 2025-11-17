@@ -42,34 +42,39 @@ CREATE DATABASE practice_db CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
 3. 各カラムを以下のように設定：
 
-**id カラム**：
-- 名前：`id`
-- タイプ：`INT`
-- インデックス：`PRIMARY`
-- A_I（Auto Increment）：✅ チェック
+    **id カラム**：
 
-**name カラム**：
-- 名前：`name`
-- タイプ：`VARCHAR`
-- 長さ/値：`200`
-- Null：❌ チェックを外す
+    - 名前：`id`
+    - タイプ：`INT`
+    - インデックス：`PRIMARY`
+    - A_I（Auto Increment）：✅ チェック
 
-**price カラム**：
-- 名前：`price`
-- タイプ：`INT`
-- Null：❌ チェックを外す
+    **name カラム**：
 
-**stock カラム**：
-- 名前：`stock`
-- タイプ：`INT`
-- デフォルト：`0`（「定義済み」を選択）
-- Null：❌ チェックを外す
+    - 名前：`name`
+    - タイプ：`VARCHAR`
+    - 長さ/値：`200`
+    - Null：❌ チェックを外す
 
-**created_at カラム**：
-- 名前：`created_at`
-- タイプ：`TIMESTAMP`
-- デフォルト：`CURRENT_TIMESTAMP`
-- Null：❌ チェックを外す
+    **price カラム**：
+
+    - 名前：`price`
+    - タイプ：`INT`
+    - Null：❌ チェックを外す
+
+    **stock カラム**：
+
+    - 名前：`stock`
+    - タイプ：`INT`
+    - デフォルト：`0`（「定義済み」を選択）
+    - Null：❌ チェックを外す
+
+    **created_at カラム**：
+
+    - 名前：`created_at`
+    - タイプ：`TIMESTAMP`
+    - デフォルト：`CURRENT_TIMESTAMP`
+    - Null：❌ チェックを外す
 
 4. 「**保存**」ボタンをクリック
 
@@ -111,6 +116,7 @@ CREATE TABLE products (
 **データ2の挿入**：
 
 同様に：
+
 - name：`マウス`
 - price：`1500`
 - stock：`20`
@@ -118,6 +124,7 @@ CREATE TABLE products (
 **データ3の挿入**：
 
 同様に：
+
 - name：`キーボード`
 - price：`3000`
 - stock：`10`

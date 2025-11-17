@@ -73,16 +73,19 @@ phpMyAdminを使って、`practice_db` という名前のデータベースを�
 `products` テーブルに、以下のデータを挿入してください（GUIを使用）。
 
 **データ1**：
+
 - name: `ノートパソコン`
 - price: `80000`
 - stock: `5`
 
 **データ2**：
+
 - name: `マウス`
 - price: `1500`
 - stock: `20`
 
 **データ3**：
+
 - name: `キーボード`
 - price: `3000`
 - stock: `10`
@@ -147,6 +150,7 @@ phpMyAdminを使って、`practice_db` という名前のデータベースを�
 SQLタブを使って、以下の2つの商品を一度に挿入してください。
 
 **データ**：
+
 - name: `モニター`, price: `25000`, stock: `8`
 - name: `Webカメラ`, price: `5000`, stock: `12`
 

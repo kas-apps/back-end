@@ -157,8 +157,8 @@ id | user_id | hobby
 
 | id  | name     | email               |
 | --- | -------- | ------------------- |
-| 1   | 山田太郎 | taro@example.com    |
-| 2   | 佐藤花子 | hanako@example.com  |
+| 1   | 山田太郎 | <taro@example.com>    |
+| 2   | 佐藤花子 | <hanako@example.com>  |
 
 **postsテーブル**（多）：
 
