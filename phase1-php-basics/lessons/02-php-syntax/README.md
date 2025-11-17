@@ -941,7 +941,7 @@ $age = $currentYear - $birthYear;  // 25歳（でも誕生日前なら24歳）
 ```php
 <?php
 function calculateAge($birthYear) {
-    $age = 2025 - $birthYear;
+    $age = date('Y') - $birthYear;
 }
 
 echo $age;  // エラー：$ageは関数の中でしか使えない
