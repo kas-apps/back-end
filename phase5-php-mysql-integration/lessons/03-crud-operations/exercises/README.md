@@ -240,9 +240,227 @@ try {
 
 ---
 
+### 問題3-6：JOINを使った商品とカテゴリーの表示
+
+**課題**：
+
+Phase 4で学んだJOINを使って、商品一覧にカテゴリー名を表示してください。
+
+**準備**：
+
+まず、カテゴリーテーブルを作成し、商品テーブルにカテゴリーIDを追加します。
+
+```sql
+-- カテゴリーテーブルを作成
+CREATE TABLE categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- サンプルデータを挿入
+INSERT INTO categories (name) VALUES
+('電子機器'),
+('家電'),
+('書籍'),
+('食品');
+
+-- productsテーブルにcategory_idカラムを追加
+ALTER TABLE products ADD COLUMN category_id INT AFTER price;
+
+-- 外部キー制約を追加
+ALTER TABLE products ADD CONSTRAINT fk_category
+FOREIGN KEY (category_id) REFERENCES categories(id);
+
+-- 既存の商品にカテゴリーIDを設定
+UPDATE products SET category_id = 1 WHERE id IN (1, 2); -- 電子機器
+UPDATE products SET category_id = 2 WHERE id = 3;        -- 家電
+```
+
+**要件**：
+- INNER JOINを使って商品とカテゴリーを結合
+- 商品一覧に「カテゴリー名」を表示
+- プリペアドステートメント使用
+- XSS対策（`htmlspecialchars()`）
+
+**ヒント**：
+
+```php
+$stmt = $pdo->query("
+    SELECT
+        products.id,
+        products.name AS product_name,
+        products.price,
+        categories.name AS category_name,
+        products.created_at
+    FROM products
+    INNER JOIN categories ON products.category_id = categories.id
+    ORDER BY products.created_at DESC
+");
+
+$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+```
+
+---
+
+### 問題3-7：LEFT JOINでコメント数を表示
+
+**課題**：
+
+商品一覧に、各商品のレビュー数を表示してください（LEFT JOINとGROUP BYを使用）。
+
+**準備**：
+
+```sql
+-- レビューテーブルを作成
+CREATE TABLE reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    user_name VARCHAR(100) NOT NULL,
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- サンプルレビューを挿入
+INSERT INTO reviews (product_id, user_name, rating, comment) VALUES
+(1, '太郎', 5, '素晴らしい商品です！'),
+(1, '花子', 4, '満足しています。'),
+(2, '次郎', 5, 'とても良いです。');
+```
+
+**要件**：
+- LEFT JOINを使って商品とレビューを結合
+- `COUNT()`でレビュー数を計算
+- `GROUP BY`で商品ごとにグループ化
+- レビューが0件の商品も表示（LEFT JOINの利点）
+- 商品名、価格、レビュー数を表示
+
+**ヒント**：
+
+```php
+$stmt = $pdo->query("
+    SELECT
+        products.id,
+        products.name,
+        products.price,
+        COUNT(reviews.id) AS review_count
+    FROM products
+    LEFT JOIN reviews ON products.id = reviews.product_id
+    GROUP BY products.id
+    ORDER BY products.created_at DESC
+");
+```
+
+---
+
+### 問題3-8：3つのテーブルをJOIN
+
+**課題**：
+
+商品、カテゴリー、レビューの3つのテーブルを結合して、商品詳細ページを作成してください。
+
+**表示する情報**：
+1. 商品名
+2. カテゴリー名
+3. 価格
+4. レビュー一覧（レビュアー名、評価、コメント）
+5. 平均評価（`AVG()`）
+
+**要件**：
+- 商品詳細ページ（URLパラメータ: `?id=1`）
+- 商品情報とカテゴリーをINNER JOIN
+- レビューをLEFT JOIN（レビューがない場合も表示）
+- 平均評価を計算して表示
+- すべてのセキュリティ対策
+
+**ヒント**：
+
+```php
+// 商品情報とカテゴリー、平均評価を取得
+$stmt = $pdo->prepare("
+    SELECT
+        products.id,
+        products.name AS product_name,
+        products.description,
+        products.price,
+        categories.name AS category_name,
+        AVG(reviews.rating) AS avg_rating,
+        COUNT(reviews.id) AS review_count
+    FROM products
+    INNER JOIN categories ON products.category_id = categories.id
+    LEFT JOIN reviews ON products.id = reviews.product_id
+    WHERE products.id = :id
+    GROUP BY products.id
+");
+$stmt->execute([':id' => $id]);
+$product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// レビュー一覧を取得
+$stmt = $pdo->prepare("
+    SELECT user_name, rating, comment, created_at
+    FROM reviews
+    WHERE product_id = :id
+    ORDER BY created_at DESC
+");
+$stmt->execute([':id' => $id]);
+$reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
+```
+
+---
+
+### 問題3-9：カテゴリー別フィルタリング with JOIN
+
+**課題**：
+
+カテゴリーでフィルタリングできる商品一覧ページを作成してください。
+
+**要件**：
+- URLパラメータでカテゴリーを指定（`?category_id=1`）
+- カテゴリー一覧をリンクで表示
+- 選択したカテゴリーの商品のみ表示
+- JOINを使ってカテゴリー名も表示
+- 「すべて」のカテゴリーも選択可能
+
+**ヒント**：
+
+```php
+// カテゴリーIDを取得
+$category_id = $_GET['category_id'] ?? 0;
+$category_id = (int)$category_id;
+
+// カテゴリー一覧を取得
+$categories = $pdo->query("SELECT * FROM categories ORDER BY name")->fetchAll();
+
+// 商品を取得
+if ($category_id > 0) {
+    // 特定カテゴリーの商品
+    $stmt = $pdo->prepare("
+        SELECT products.*, categories.name AS category_name
+        FROM products
+        INNER JOIN categories ON products.category_id = categories.id
+        WHERE categories.id = :category_id
+        ORDER BY products.created_at DESC
+    ");
+    $stmt->execute([':category_id' => $category_id]);
+} else {
+    // すべての商品
+    $stmt = $pdo->query("
+        SELECT products.*, categories.name AS category_name
+        FROM products
+        INNER JOIN categories ON products.category_id = categories.id
+        ORDER BY products.created_at DESC
+    ");
+}
+$products = $stmt->fetchAll();
+```
+
+---
+
 ## 🛡️ セキュリティチャレンジ
 
-### 問題3-7：権限チェックの実装
+### 問題3-10：権限チェックの実装
 
 **課題**：
 
@@ -273,7 +491,7 @@ requireLogin();
 
 ---
 
-### 問題3-8：SQLインジェクション攻撃からの防御
+### 問題3-11：SQLインジェクション攻撃からの防御
 
 **課題**：
 
@@ -302,7 +520,7 @@ echo "削除しました。";
 
 ## 💪 総合チャレンジ
 
-### 問題3-9：完全な商品管理システム
+### 問題3-12：完全な商品管理システム
 
 **課題**：
 
