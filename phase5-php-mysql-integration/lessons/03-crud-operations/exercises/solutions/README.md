@@ -920,9 +920,657 @@ try {
 
 ---
 
+## 🔗 JOIN演習
+
+### 問題3-7：JOINを使った商品とカテゴリーの表示 - 解答例
+
+まず、カテゴリーテーブルと必要なデータを準備します：
+
+```sql
+-- カテゴリーテーブルを作成
+CREATE TABLE IF NOT EXISTS categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 商品テーブルにcategory_idカラムを追加（既存のテーブルの場合）
+ALTER TABLE products
+ADD COLUMN category_id INT AFTER description,
+ADD FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL;
+
+-- サンプルカテゴリーを挿入
+INSERT INTO categories (name, description) VALUES
+('電化製品', '家電製品やガジェット'),
+('食品', '食べ物・飲み物'),
+('書籍', '本・雑誌');
+
+-- 既存の商品にカテゴリーIDを設定
+UPDATE products SET category_id = 1 WHERE id = 1;  -- ノートパソコン → 電化製品
+UPDATE products SET category_id = 2 WHERE id = 2;  -- 有機コーヒー → 食品
+UPDATE products SET category_id = 3 WHERE id = 3;  -- プログラミング入門書 → 書籍
+```
+
+**product_list_with_categories.php**：
+
+```php
+<?php
+// config.phpを読み込み（データベース接続）
+require_once 'config.php';
+
+// 商品一覧をカテゴリー名とともに取得（INNER JOIN）
+try {
+    $stmt = $pdo->query("
+        SELECT
+            products.id,
+            products.name AS product_name,
+            products.description,
+            products.price,
+            products.stock,
+            categories.name AS category_name,
+            products.created_at
+        FROM products
+        INNER JOIN categories ON products.category_id = categories.id
+        ORDER BY products.created_at DESC
+    ");
+
+    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+} catch (PDOException $e) {
+    die("エラー: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
+}
+?>
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>商品一覧 with カテゴリー</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #4CAF50; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>📦 商品一覧（カテゴリー表示）</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>商品名</th>
+                <th>カテゴリー</th>
+                <th>説明</th>
+                <th>価格</th>
+                <th>在庫</th>
+                <th>登録日時</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (empty($products)): ?>
+                <tr>
+                    <td colspan="7">商品が登録されていません。</td>
+                </tr>
+            <?php else: ?>
+                <?php foreach ($products as $product): ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($product['id'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($product['product_name'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td>
+                        <strong><?php echo htmlspecialchars($product['category_name'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                    </td>
+                    <td><?php echo htmlspecialchars($product['description'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td>¥<?php echo number_format($product['price']); ?></td>
+                    <td><?php echo htmlspecialchars($product['stock'], ENT_QUOTES, 'UTF-8'); ?>個</td>
+                    <td><?php echo htmlspecialchars($product['created_at'], ENT_QUOTES, 'UTF-8'); ?></td>
+                </tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </tbody>
+    </table>
+
+    <p><a href="product_form.php">新しい商品を追加</a></p>
+</body>
+</html>
+```
+
+**✅ セキュリティポイント**：
+- ✅ INNER JOINでリレーションを正しく結合
+- ✅ `htmlspecialchars()`でXSS対策
+- ✅ 外部キー制約でデータ整合性を保証
+- ✅ `ON DELETE SET NULL`で削除時の安全性を確保
+
+**💡 コードのポイント**：
+- **INNER JOIN**：カテゴリーIDが一致する商品のみ取得
+- **AS（エイリアス）**：`products.name AS product_name`でカラム名の衝突を回避
+- **ORDER BY**：最新の商品から順に表示
+- **外部キー制約**：カテゴリーが削除されたら商品のcategory_idはNULLになる
+
+**🎓 INNER JOIN vs LEFT JOIN**：
+```sql
+-- INNER JOIN: カテゴリーが設定されている商品のみ取得
+SELECT * FROM products
+INNER JOIN categories ON products.category_id = categories.id;
+-- → category_idがNULLの商品は表示されない
+
+-- LEFT JOIN: カテゴリーが設定されていない商品も取得
+SELECT * FROM products
+LEFT JOIN categories ON products.category_id = categories.id;
+-- → category_idがNULLの商品も表示される（category_nameはNULL）
+```
+
+---
+
+### 問題3-8：LEFT JOINでコメント数を表示 - 解答例
+
+まず、レビューテーブルとサンプルデータを準備します：
+
+```sql
+-- レビューテーブルを作成
+CREATE TABLE IF NOT EXISTS reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    user_name VARCHAR(100) NOT NULL,
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- サンプルレビューを挿入
+INSERT INTO reviews (product_id, user_name, rating, comment) VALUES
+(1, '太郎', 5, '素晴らしい商品です！'),
+(1, '花子', 4, '満足しています。'),
+(2, '次郎', 5, 'とても良いです。'),
+(2, '美咲', 3, '普通です。');
+-- 商品ID=3にはレビューなし
+```
+
+**product_list_with_review_count.php**：
+
+```php
+<?php
+// config.phpを読み込み（データベース接続）
+require_once 'config.php';
+
+// 商品一覧をレビュー数とともに取得（LEFT JOIN + COUNT）
+try {
+    $stmt = $pdo->query("
+        SELECT
+            products.id,
+            products.name AS product_name,
+            products.price,
+            products.stock,
+            categories.name AS category_name,
+            COUNT(reviews.id) AS review_count,
+            AVG(reviews.rating) AS avg_rating
+        FROM products
+        INNER JOIN categories ON products.category_id = categories.id
+        LEFT JOIN reviews ON products.id = reviews.product_id
+        GROUP BY products.id
+        ORDER BY products.created_at DESC
+    ");
+
+    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+} catch (PDOException $e) {
+    die("エラー: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
+}
+?>
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>商品一覧 with レビュー数</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #4CAF50; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .rating { color: #FFD700; font-weight: bold; }
+        .no-reviews { color: #999; }
+    </style>
+</head>
+<body>
+    <h1>📦 商品一覧（レビュー数表示）</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>商品名</th>
+                <th>カテゴリー</th>
+                <th>価格</th>
+                <th>在庫</th>
+                <th>レビュー数</th>
+                <th>平均評価</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($products as $product): ?>
+            <tr>
+                <td><?php echo htmlspecialchars($product['id'], ENT_QUOTES, 'UTF-8'); ?></td>
+                <td><?php echo htmlspecialchars($product['product_name'], ENT_QUOTES, 'UTF-8'); ?></td>
+                <td><?php echo htmlspecialchars($product['category_name'], ENT_QUOTES, 'UTF-8'); ?></td>
+                <td>¥<?php echo number_format($product['price']); ?></td>
+                <td><?php echo htmlspecialchars($product['stock'], ENT_QUOTES, 'UTF-8'); ?>個</td>
+                <td>
+                    <?php if ($product['review_count'] > 0): ?>
+                        <?php echo htmlspecialchars($product['review_count'], ENT_QUOTES, 'UTF-8'); ?>件
+                    <?php else: ?>
+                        <span class="no-reviews">レビューなし</span>
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <?php if ($product['avg_rating']): ?>
+                        <span class="rating">
+                            ⭐ <?php echo number_format($product['avg_rating'], 1); ?>
+                        </span>
+                    <?php else: ?>
+                        <span class="no-reviews">-</span>
+                    <?php endif; ?>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+
+    <p><a href="product_detail.php?id=1">商品詳細を見る</a></p>
+</body>
+</html>
+```
+
+**✅ セキュリティポイント**：
+- ✅ LEFT JOINでレビューがない商品も表示
+- ✅ `COUNT()`と`GROUP BY`で正確なカウント
+- ✅ `htmlspecialchars()`でXSS対策
+- ✅ `number_format()`で安全な数値表示
+
+**💡 コードのポイント**：
+- **LEFT JOIN**：レビューがない商品も取得（`review_count`は0になる）
+- **COUNT(reviews.id)**：レビューの数をカウント（NULLは除外される）
+- **AVG(reviews.rating)**：レビューの平均評価を計算
+- **GROUP BY products.id**：商品ごとにグループ化（集約関数を使うため）
+
+**🎓 COUNT()の注意点**：
+```sql
+-- ❌ 間違い：COUNT(*)だとLEFT JOINで1になる
+SELECT products.id, COUNT(*) AS review_count
+FROM products
+LEFT JOIN reviews ON products.id = reviews.product_id
+GROUP BY products.id;
+-- → レビューがない商品でもCOUNT(*)は1になる（NULLの行も数える）
+
+-- ✅ 正しい：COUNT(reviews.id)ならNULLは除外される
+SELECT products.id, COUNT(reviews.id) AS review_count
+FROM products
+LEFT JOIN reviews ON products.id = reviews.product_id
+GROUP BY products.id;
+-- → レビューがない商品はCOUNT(reviews.id)は0になる
+```
+
+---
+
+### 問題3-9：3つのテーブルをJOIN - 解答例
+
+**product_detail.php**（商品詳細ページ）：
+
+```php
+<?php
+// config.phpを読み込み（データベース接続）
+require_once 'config.php';
+
+// 商品IDを取得
+$id = $_GET['id'] ?? 0;
+$id = (int)$id;
+
+if ($id <= 0) {
+    die("不正なIDです。");
+}
+
+try {
+    // 商品情報とカテゴリー、平均評価を取得（3テーブルJOIN）
+    $stmt = $pdo->prepare("
+        SELECT
+            products.id,
+            products.name AS product_name,
+            products.description,
+            products.price,
+            products.stock,
+            categories.name AS category_name,
+            categories.description AS category_description,
+            AVG(reviews.rating) AS avg_rating,
+            COUNT(reviews.id) AS review_count
+        FROM products
+        INNER JOIN categories ON products.category_id = categories.id
+        LEFT JOIN reviews ON products.id = reviews.product_id
+        WHERE products.id = :id
+        GROUP BY products.id
+    ");
+
+    $stmt->execute([':id' => $id]);
+    $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$product) {
+        die("商品が見つかりませんでした。");
+    }
+
+    // レビュー一覧を取得
+    $stmt = $pdo->prepare("
+        SELECT
+            user_name,
+            rating,
+            comment,
+            created_at
+        FROM reviews
+        WHERE product_id = :id
+        ORDER BY created_at DESC
+    ");
+
+    $stmt->execute([':id' => $id]);
+    $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+} catch (PDOException $e) {
+    die("エラー: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
+}
+?>
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title><?php echo htmlspecialchars($product['product_name'], ENT_QUOTES, 'UTF-8'); ?> - 商品詳細</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .product-info { background-color: #f9f9f9; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+        .category { display: inline-block; background-color: #4CAF50; color: white; padding: 5px 10px; border-radius: 3px; font-size: 0.9em; }
+        .price { font-size: 1.5em; color: #E91E63; font-weight: bold; }
+        .rating { color: #FFD700; font-weight: bold; font-size: 1.2em; }
+        .reviews { margin-top: 30px; }
+        .review-item { border-bottom: 1px solid #ddd; padding: 15px 0; }
+        .review-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .stars { color: #FFD700; }
+    </style>
+</head>
+<body>
+    <h1>📦 商品詳細</h1>
+
+    <div class="product-info">
+        <h2><?php echo htmlspecialchars($product['product_name'], ENT_QUOTES, 'UTF-8'); ?></h2>
+
+        <p>
+            <span class="category">
+                <?php echo htmlspecialchars($product['category_name'], ENT_QUOTES, 'UTF-8'); ?>
+            </span>
+        </p>
+
+        <p class="price">¥<?php echo number_format($product['price']); ?></p>
+
+        <p><strong>説明：</strong><?php echo nl2br(htmlspecialchars($product['description'], ENT_QUOTES, 'UTF-8')); ?></p>
+
+        <p><strong>在庫：</strong><?php echo htmlspecialchars($product['stock'], ENT_QUOTES, 'UTF-8'); ?>個</p>
+
+        <div>
+            <?php if ($product['review_count'] > 0): ?>
+                <span class="rating">
+                    ⭐ <?php echo number_format($product['avg_rating'], 1); ?>
+                </span>
+                （<?php echo htmlspecialchars($product['review_count'], ENT_QUOTES, 'UTF-8'); ?>件のレビュー）
+            <?php else: ?>
+                <span style="color: #999;">まだレビューがありません</span>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <div class="reviews">
+        <h3>💬 レビュー</h3>
+
+        <?php if (empty($reviews)): ?>
+            <p>まだレビューが投稿されていません。</p>
+        <?php else: ?>
+            <?php foreach ($reviews as $review): ?>
+            <div class="review-item">
+                <div class="review-header">
+                    <strong><?php echo htmlspecialchars($review['user_name'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                    <span class="stars">
+                        <?php echo str_repeat('⭐', $review['rating']); ?>
+                        <?php echo str_repeat('☆', 5 - $review['rating']); ?>
+                    </span>
+                </div>
+                <p><?php echo nl2br(htmlspecialchars($review['comment'], ENT_QUOTES, 'UTF-8')); ?></p>
+                <small style="color: #999;">
+                    <?php echo htmlspecialchars($review['created_at'], ENT_QUOTES, 'UTF-8'); ?>
+                </small>
+            </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+
+    <p><a href="product_list_with_review_count.php">← 商品一覧に戻る</a></p>
+</body>
+</html>
+```
+
+**✅ セキュリティポイント**：
+- ✅ プリペアドステートメントでSQLインジェクション対策
+- ✅ `(int)`キャストで型安全性を確保
+- ✅ `htmlspecialchars()`でXSS対策
+- ✅ `nl2br()`で改行を安全にHTMLに変換
+- ✅ データが見つからない場合の適切なエラー処理
+
+**💡 コードのポイント**：
+- **3テーブルJOIN**：products → categories (INNER), products → reviews (LEFT)
+- **2回のクエリ**：商品情報とレビュー一覧を別々に取得（効率的）
+- **AVG()とCOUNT()**：集約関数で統計情報を計算
+- **GROUP BY**：商品ごとにグループ化して集約
+
+**🎓 JOINの順序**：
+```sql
+-- 商品を起点に、カテゴリーとレビューを結合
+FROM products                                      -- 起点
+INNER JOIN categories ON products.category_id = categories.id  -- カテゴリーは必須
+LEFT JOIN reviews ON products.id = reviews.product_id          -- レビューは任意
+```
+
+---
+
+### 問題3-10：カテゴリー別フィルタリング with JOIN - 解答例
+
+**product_list_by_category.php**：
+
+```php
+<?php
+// config.phpを読み込み（データベース接続）
+require_once 'config.php';
+
+// カテゴリーIDを取得
+$category_id = $_GET['category_id'] ?? 0;
+$category_id = (int)$category_id;
+
+try {
+    // カテゴリー一覧を取得
+    $categories = $pdo->query("
+        SELECT id, name
+        FROM categories
+        ORDER BY name
+    ")->fetchAll(PDO::FETCH_ASSOC);
+
+    // 商品を取得
+    if ($category_id > 0) {
+        // 特定カテゴリーの商品のみ
+        $stmt = $pdo->prepare("
+            SELECT
+                products.id,
+                products.name AS product_name,
+                products.description,
+                products.price,
+                products.stock,
+                categories.name AS category_name
+            FROM products
+            INNER JOIN categories ON products.category_id = categories.id
+            WHERE categories.id = :category_id
+            ORDER BY products.created_at DESC
+        ");
+        $stmt->execute([':category_id' => $category_id]);
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 選択中のカテゴリー名を取得
+        $stmt = $pdo->prepare("SELECT name FROM categories WHERE id = :id");
+        $stmt->execute([':id' => $category_id]);
+        $selected_category_name = $stmt->fetchColumn();
+
+    } else {
+        // すべての商品
+        $stmt = $pdo->query("
+            SELECT
+                products.id,
+                products.name AS product_name,
+                products.description,
+                products.price,
+                products.stock,
+                categories.name AS category_name
+            FROM products
+            INNER JOIN categories ON products.category_id = categories.id
+            ORDER BY products.created_at DESC
+        ");
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $selected_category_name = 'すべて';
+    }
+
+} catch (PDOException $e) {
+    die("エラー: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
+}
+?>
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>商品一覧 - カテゴリー別</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .category-nav { margin-bottom: 20px; padding: 15px; background-color: #f0f0f0; border-radius: 5px; }
+        .category-nav a { display: inline-block; margin: 5px; padding: 8px 15px; background-color: #fff; border: 1px solid #ddd; border-radius: 3px; text-decoration: none; color: #333; }
+        .category-nav a:hover { background-color: #4CAF50; color: white; }
+        .category-nav a.active { background-color: #4CAF50; color: white; font-weight: bold; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #4CAF50; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>📦 商品一覧 - カテゴリー別</h1>
+
+    <!-- カテゴリーナビゲーション -->
+    <div class="category-nav">
+        <strong>カテゴリー：</strong>
+        <a href="?category_id=0" class="<?php echo ($category_id === 0) ? 'active' : ''; ?>">
+            すべて
+        </a>
+        <?php foreach ($categories as $category): ?>
+        <a href="?category_id=<?php echo htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8'); ?>"
+           class="<?php echo ($category_id === $category['id']) ? 'active' : ''; ?>">
+            <?php echo htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8'); ?>
+        </a>
+        <?php endforeach; ?>
+    </div>
+
+    <h2>
+        カテゴリー：<?php echo htmlspecialchars($selected_category_name, ENT_QUOTES, 'UTF-8'); ?>
+        （<?php echo count($products); ?>件）
+    </h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>商品名</th>
+                <th>カテゴリー</th>
+                <th>説明</th>
+                <th>価格</th>
+                <th>在庫</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (empty($products)): ?>
+                <tr>
+                    <td colspan="7">このカテゴリーには商品がありません。</td>
+                </tr>
+            <?php else: ?>
+                <?php foreach ($products as $product): ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($product['id'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($product['product_name'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($product['category_name'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($product['description'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td>¥<?php echo number_format($product['price']); ?></td>
+                    <td><?php echo htmlspecialchars($product['stock'], ENT_QUOTES, 'UTF-8'); ?>個</td>
+                    <td>
+                        <a href="product_detail.php?id=<?php echo htmlspecialchars($product['id'], ENT_QUOTES, 'UTF-8'); ?>">
+                            詳細
+                        </a>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </tbody>
+    </table>
+
+    <p><a href="product_form.php">新しい商品を追加</a></p>
+</body>
+</html>
+```
+
+**✅ セキュリティポイント**：
+- ✅ `(int)`キャストでSQLインジェクション対策
+- ✅ プリペアドステートメントで安全なクエリ実行
+- ✅ `htmlspecialchars()`でXSS対策
+- ✅ URLパラメータの適切な検証
+
+**💡 コードのポイント**：
+- **条件分岐**：category_idが0ならすべて、それ以外は特定カテゴリー
+- **動的クラス**：選択中のカテゴリーに`active`クラスを付与
+- **count()**：PHP関数で商品数を表示
+- **リンク生成**：GETパラメータでカテゴリーを切り替え
+
+**🎓 改善版（クエリを1つにまとめる）**：
+```php
+// WHERE句を動的に構築する方法
+$where = "";
+$params = [];
+
+if ($category_id > 0) {
+    $where = "WHERE categories.id = :category_id";
+    $params[':category_id'] = $category_id;
+}
+
+$stmt = $pdo->prepare("
+    SELECT
+        products.id,
+        products.name AS product_name,
+        products.price,
+        categories.name AS category_name
+    FROM products
+    INNER JOIN categories ON products.category_id = categories.id
+    $where
+    ORDER BY products.created_at DESC
+");
+
+$stmt->execute($params);
+$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+```
+
+---
+
 ## 🛡️ セキュリティチャレンジ
 
-### 問題3-7：権限チェックの実装 - 解答例
+### 問題3-11：権限チェックの実装 - 解答例
 
 **functions.php（共通関数）**：
 
@@ -1038,7 +1686,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 ---
 
-### 問題3-8：SQLインジェクション攻撃からの防御 - 解答例
+### 問題3-12：SQLインジェクション攻撃からの防御 - 解答例
 
 **脆弱なコード（再掲）**：
 
