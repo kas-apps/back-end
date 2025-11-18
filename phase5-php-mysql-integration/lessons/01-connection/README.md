@@ -74,6 +74,86 @@ PHPアプリケーション
   MySQL / PostgreSQL / SQLite などのデータベース
 ```
 
+### MySQLへの接続方法：mysqliとPDOの違い
+
+PHPからMySQLに接続する方法は主に2つあります：
+
+**1. mysqli（MySQL Improved）**
+- MySQL専用の拡張機能
+- MySQLに特化した機能が使える
+- 古いコードでよく使われている
+
+**2. PDO（PHP Data Objects）**
+- 複数のデータベースに対応した統一インターフェース
+- **現代的な推奨方法**
+- セキュアなプリペアドステートメントが使いやすい
+
+**比較表**：
+
+| 項目 | mysqli | PDO |
+|-----|--------|-----|
+| **対応データベース** | MySQLのみ | MySQL、PostgreSQL、SQLite、Oracle など |
+| **プリペアドステートメント** | サポート | サポート（より直感的） |
+| **エラーハンドリング** | 手動でチェック必要 | 例外（try-catch）が使える |
+| **コードの移植性** | 低い（MySQL専用） | 高い（他のDBにも対応） |
+| **推奨度** | △（特別な理由がない限り非推奨） | ✅ **推奨** |
+
+**コード比較例**：
+
+**mysqli（古い方法）**：
+```php
+<?php
+// mysqliでの接続（非推奨）
+$mysqli = new mysqli('localhost', 'root', 'root', 'mydb');
+
+if ($mysqli->connect_error) {
+    die('接続エラー: ' . $mysqli->connect_error);
+}
+
+// データ取得
+$result = $mysqli->query("SELECT * FROM users");
+while ($row = $result->fetch_assoc()) {
+    echo $row['name'];
+}
+
+$mysqli->close();
+?>
+```
+
+**PDO（推奨）**：
+```php
+<?php
+// PDOでの接続（推奨）
+try {
+    $pdo = new PDO('mysql:host=localhost;dbname=mydb;charset=utf8mb4', 'root', 'root');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // データ取得
+    $stmt = $pdo->query("SELECT * FROM users");
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($users as $user) {
+        echo $user['name'];
+    }
+
+} catch (PDOException $e) {
+    die('接続エラー: ' . $e->getMessage());
+}
+?>
+```
+
+**なぜPDOを使うべきか？**
+
+✅ **将来性**：MySQLから他のデータベースに移行する可能性がある
+✅ **セキュリティ**：プリペアドステートメントが使いやすい（SQLインジェクション対策）
+✅ **エラーハンドリング**：例外処理が標準でサポート
+✅ **業界標準**：現代的なPHPプロジェクトはほぼすべてPDOを使用
+✅ **フレームワーク**：Laravel、Symfony、CakePHPなどの主要フレームワークはPDOを使用
+
+**このレッスンではPDOを使います！**
+
+---
+
 ### PDOのメリット
 
 **1. データベースの種類に依存しない**

@@ -410,6 +410,259 @@ try {
 <p>検索結果: <?php echo count($products); ?>件</p>
 ```
 
+### JOINを使った複雑なデータ取得
+
+Phase 4で学んだJOINを使って、**複数テーブルの関連データを一度に取得**できます！
+
+**使用例**：商品とカテゴリーの関連データ
+
+**テーブル構成**：
+
+```sql
+-- 商品テーブル
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    price INT NOT NULL,
+    category_id INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- カテゴリーテーブル
+CREATE TABLE categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
+);
+```
+
+**INNER JOINで商品一覧とカテゴリー名を取得**：
+
+```php
+<?php
+require_once 'config.php';
+
+try {
+    // INNER JOINで商品とカテゴリーを結合
+    $stmt = $pdo->query("
+        SELECT
+            products.id,
+            products.name AS product_name,
+            products.price,
+            categories.name AS category_name,
+            products.created_at
+        FROM products
+        INNER JOIN categories ON products.category_id = categories.id
+        ORDER BY products.created_at DESC
+    ");
+
+    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+} catch (PDOException $e) {
+    error_log($e->getMessage());
+    die("エラーが発生しました。");
+}
+?>
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>商品一覧（カテゴリー付き）</title>
+</head>
+<body>
+    <h1>商品一覧</h1>
+
+    <?php if (count($products) > 0): ?>
+        <table border="1">
+            <tr>
+                <th>ID</th>
+                <th>商品名</th>
+                <th>カテゴリー</th>
+                <th>価格</th>
+                <th>登録日</th>
+            </tr>
+            <?php foreach ($products as $product): ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($product['id'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($product['product_name'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($product['category_name'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo number_format($product['price']); ?>円</td>
+                    <td><?php echo htmlspecialchars($product['created_at'], ENT_QUOTES, 'UTF-8'); ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+    <?php else: ?>
+        <p>商品がまだ登録されていません。</p>
+    <?php endif; ?>
+</body>
+</html>
+```
+
+**実用例：ブログ記事とコメント数を取得（LEFT JOIN）**：
+
+```php
+<?php
+require_once 'config.php';
+
+try {
+    // LEFT JOINで記事とコメント数を取得
+    $stmt = $pdo->query("
+        SELECT
+            articles.id,
+            articles.title,
+            articles.content,
+            articles.created_at,
+            COUNT(comments.id) AS comment_count
+        FROM articles
+        LEFT JOIN comments ON articles.id = comments.article_id
+        GROUP BY articles.id
+        ORDER BY articles.created_at DESC
+    ");
+
+    $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+} catch (PDOException $e) {
+    error_log($e->getMessage());
+    die("エラーが発生しました。");
+}
+?>
+
+<!-- 表示 -->
+<?php foreach ($articles as $article): ?>
+    <article>
+        <h2><?php echo htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8'); ?></h2>
+        <p><?php echo nl2br(htmlspecialchars($article['content'], ENT_QUOTES, 'UTF-8')); ?></p>
+        <p>
+            <small>
+                投稿日: <?php echo htmlspecialchars($article['created_at'], ENT_QUOTES, 'UTF-8'); ?> |
+                コメント数: <?php echo htmlspecialchars($article['comment_count'], ENT_QUOTES, 'UTF-8'); ?>件
+            </small>
+        </p>
+    </article>
+    <hr>
+<?php endforeach; ?>
+```
+
+**複数テーブルのJOIN（3つ以上のテーブル）**：
+
+```php
+<?php
+require_once 'config.php';
+
+// 記事ID
+$article_id = $_GET['id'] ?? 0;
+$article_id = (int)$article_id;
+
+try {
+    // 記事、カテゴリー、ユーザー情報を一度に取得
+    $stmt = $pdo->prepare("
+        SELECT
+            articles.id,
+            articles.title,
+            articles.content,
+            articles.created_at,
+            categories.name AS category_name,
+            users.name AS author_name,
+            users.email AS author_email
+        FROM articles
+        INNER JOIN categories ON articles.category_id = categories.id
+        INNER JOIN users ON articles.user_id = users.id
+        WHERE articles.id = :id
+    ");
+
+    $stmt->execute([':id' => $article_id]);
+    $article = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$article) {
+        die("記事が見つかりません。");
+    }
+
+} catch (PDOException $e) {
+    error_log($e->getMessage());
+    die("エラーが発生しました。");
+}
+?>
+
+<!-- 記事詳細表示 -->
+<article>
+    <h1><?php echo htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8'); ?></h1>
+
+    <p>
+        <strong>カテゴリー:</strong> <?php echo htmlspecialchars($article['category_name'], ENT_QUOTES, 'UTF-8'); ?><br>
+        <strong>著者:</strong> <?php echo htmlspecialchars($article['author_name'], ENT_QUOTES, 'UTF-8'); ?><br>
+        <strong>投稿日:</strong> <?php echo htmlspecialchars($article['created_at'], ENT_QUOTES, 'UTF-8'); ?>
+    </p>
+
+    <div>
+        <?php echo nl2br(htmlspecialchars($article['content'], ENT_QUOTES, 'UTF-8')); ?>
+    </div>
+</article>
+```
+
+**JOINを使ったフィルター検索**：
+
+```php
+<?php
+require_once 'config.php';
+
+// カテゴリーIDを取得
+$category_id = $_GET['category_id'] ?? 0;
+$category_id = (int)$category_id;
+
+try {
+    if ($category_id > 0) {
+        // 特定カテゴリーの商品を取得
+        $stmt = $pdo->prepare("
+            SELECT
+                products.id,
+                products.name AS product_name,
+                products.price,
+                categories.name AS category_name
+            FROM products
+            INNER JOIN categories ON products.category_id = categories.id
+            WHERE categories.id = :category_id
+            ORDER BY products.created_at DESC
+        ");
+        $stmt->execute([':category_id' => $category_id]);
+    } else {
+        // 全商品を取得
+        $stmt = $pdo->query("
+            SELECT
+                products.id,
+                products.name AS product_name,
+                products.price,
+                categories.name AS category_name
+            FROM products
+            INNER JOIN categories ON products.category_id = categories.id
+            ORDER BY products.created_at DESC
+        ");
+    }
+
+    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+} catch (PDOException $e) {
+    error_log($e->getMessage());
+    die("エラーが発生しました。");
+}
+?>
+```
+
+**JOINを使うメリット**：
+
+✅ **データ取得が効率的**
+- 1回のクエリで関連データをまとめて取得
+- 複数回のクエリ実行が不要
+
+✅ **パフォーマンス向上**
+- データベースへのアクセス回数が減る
+- ネットワークの負荷が軽減
+
+✅ **コードがシンプル**
+- foreachループでデータを取得する必要がない
+- データの整合性が保たれる
+
+**Phase 4で学んだJOINの知識を活用して、実用的なアプリケーションを構築しよう！**
+
 ---
 
 ## 💻 Update（更新）の実装（How）
