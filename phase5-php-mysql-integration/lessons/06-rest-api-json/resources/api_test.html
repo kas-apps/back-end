@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REST API テストページ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            max-height: 400px;
+            border: 1px solid #ddd;
+            margin-top: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .api-url {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            border-left: 4px solid #667eea;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .section {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 REST API テストページ</h1>
+
+        <div class="api-url">
+            <strong>API URL:</strong> <span id="api-url-display">http://localhost:8888/api/products.php</span>
+        </div>
+
+        <!-- 商品一覧取得 -->
+        <div class="section">
+            <h2>📦 商品一覧取得（GET）</h2>
+            <button onclick="getProducts()">実行</button>
+            <button onclick="clearResult('result-get')">クリア</button>
+            <pre id="result-get"></pre>
+        </div>
+
+        <!-- 特定商品取得 -->
+        <div class="section">
+            <h2>🔍 特定商品取得（GET）</h2>
+            <div class="input-group">
+                <label for="product-id">商品ID:</label>
+                <input type="number" id="product-id" value="1" min="1">
+            </div>
+            <button onclick="getProductById()">実行</button>
+            <button onclick="clearResult('result-get-id')">クリア</button>
+            <pre id="result-get-id"></pre>
+        </div>
+
+        <!-- 検索 -->
+        <div class="section">
+            <h2>🔎 商品検索（GET）</h2>
+            <div class="input-group">
+                <label for="search-keyword">検索キーワード:</label>
+                <input type="text" id="search-keyword" value="Mac" placeholder="商品名で検索">
+            </div>
+            <button onclick="searchProducts()">検索</button>
+            <button onclick="clearResult('result-search')">クリア</button>
+            <pre id="result-search"></pre>
+        </div>
+
+        <!-- 商品作成 -->
+        <div class="section">
+            <h2>➕ 商品作成（POST）</h2>
+            <div class="grid">
+                <div class="input-group">
+                    <label for="create-name">商品名 <span style="color: red;">*</span>:</label>
+                    <input type="text" id="create-name" value="Apple Watch Ultra 2">
+                </div>
+                <div class="input-group">
+                    <label for="create-price">価格 <span style="color: red;">*</span>:</label>
+                    <input type="number" id="create-price" value="128800" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="create-stock">在庫:</label>
+                    <input type="number" id="create-stock" value="20" min="0">
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="create-description">説明:</label>
+                <textarea id="create-description">最新のスマートウォッチ。アウトドアやスポーツに最適。</textarea>
+            </div>
+            <button onclick="createProduct()">作成</button>
+            <button onclick="clearResult('result-post')">クリア</button>
+            <pre id="result-post"></pre>
+        </div>
+
+        <!-- 商品更新 -->
+        <div class="section">
+            <h2>✏️ 商品更新（PUT）</h2>
+            <div class="grid">
+                <div class="input-group">
+                    <label for="update-id">商品ID <span style="color: red;">*</span>:</label>
+                    <input type="number" id="update-id" value="1" min="1">
+                </div>
+                <div class="input-group">
+                    <label for="update-name">商品名:</label>
+                    <input type="text" id="update-name" value="MacBook Pro M3">
+                </div>
+                <div class="input-group">
+                    <label for="update-price">価格:</label>
+                    <input type="number" id="update-price" value="218000" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="update-stock">在庫:</label>
+                    <input type="number" id="update-stock" value="8" min="0">
+                </div>
+            </div>
+            <button onclick="updateProduct()">更新</button>
+            <button onclick="clearResult('result-put')">クリア</button>
+            <pre id="result-put"></pre>
+        </div>
+
+        <!-- 商品削除 -->
+        <div class="section">
+            <h2>🗑️ 商品削除（DELETE）</h2>
+            <div class="input-group">
+                <label for="delete-id">商品ID <span style="color: red;">*</span>:</label>
+                <input type="number" id="delete-id" value="6" min="1">
+            </div>
+            <button onclick="deleteProduct()">削除</button>
+            <button onclick="clearResult('result-delete')">クリア</button>
+            <pre id="result-delete"></pre>
+        </div>
+    </div>
+
+    <script>
+        // API URL（環境に応じて変更してください）
+        const API_URL = 'http://localhost:8888/api/products.php';
+        const API_KEY = ''; // API Key認証が必要な場合はここに記入
+
+        // API URLを表示
+        document.getElementById('api-url-display').textContent = API_URL;
+
+        /**
+         * 結果表示エリアをクリア
+         */
+        function clearResult(elementId) {
+            document.getElementById(elementId).textContent = '';
+            document.getElementById(elementId).classList.remove('error', 'success');
+        }
+
+        /**
+         * 結果を表示
+         */
+        function displayResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(data, null, 2);
+            element.classList.remove('error', 'success');
+            element.classList.add(isError ? 'error' : 'success');
+        }
+
+        /**
+         * 商品一覧取得
+         */
+        async function getProducts() {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'GET',
+                    headers: API_KEY ? { 'X-API-KEY': API_KEY } : {}
+                });
+
+                const data = await response.json();
+                displayResult('result-get', data, !data.success);
+
+            } catch (error) {
+                displayResult('result-get', { error: error.message }, true);
+            }
+        }
+
+        /**
+         * 特定商品取得
+         */
+        async function getProductById() {
+            const id = document.getElementById('product-id').value;
+
+            if (!id) {
+                alert('商品IDを入力してください。');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}?id=${id}`, {
+                    method: 'GET',
+                    headers: API_KEY ? { 'X-API-KEY': API_KEY } : {}
+                });
+
+                const data = await response.json();
+                displayResult('result-get-id', data, !data.success);
+
+            } catch (error) {
+                displayResult('result-get-id', { error: error.message }, true);
+            }
+        }
+
+        /**
+         * 商品検索
+         */
+        async function searchProducts() {
+            const keyword = document.getElementById('search-keyword').value;
+
+            if (!keyword) {
+                alert('検索キーワードを入力してください。');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}?search=${encodeURIComponent(keyword)}`, {
+                    method: 'GET',
+                    headers: API_KEY ? { 'X-API-KEY': API_KEY } : {}
+                });
+
+                const data = await response.json();
+                displayResult('result-search', data, !data.success);
+
+            } catch (error) {
+                displayResult('result-search', { error: error.message }, true);
+            }
+        }
+
+        /**
+         * 商品作成
+         */
+        async function createProduct() {
+            const name = document.getElementById('create-name').value;
+            const price = parseFloat(document.getElementById('create-price').value);
+            const stock = parseInt(document.getElementById('create-stock').value);
+            const description = document.getElementById('create-description').value;
+
+            if (!name || !price) {
+                alert('商品名と価格は必須です。');
+                return;
+            }
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(API_KEY ? { 'X-API-KEY': API_KEY } : {})
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        description: description,
+                        price: price,
+                        stock: stock
+                    })
+                });
+
+                const data = await response.json();
+                displayResult('result-post', data, !data.success);
+
+                // 成功したら、フォームをクリア
+                if (data.success) {
+                    // document.getElementById('create-name').value = '';
+                    // document.getElementById('create-description').value = '';
+                }
+
+            } catch (error) {
+                displayResult('result-post', { error: error.message }, true);
+            }
+        }
+
+        /**
+         * 商品更新
+         */
+        async function updateProduct() {
+            const id = parseInt(document.getElementById('update-id').value);
+            const name = document.getElementById('update-name').value;
+            const price = parseFloat(document.getElementById('update-price').value);
+            const stock = parseInt(document.getElementById('update-stock').value);
+
+            if (!id) {
+                alert('商品IDは必須です。');
+                return;
+            }
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(API_KEY ? { 'X-API-KEY': API_KEY } : {})
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        name: name,
+                        price: price,
+                        stock: stock
+                    })
+                });
+
+                const data = await response.json();
+                displayResult('result-put', data, !data.success);
+
+            } catch (error) {
+                displayResult('result-put', { error: error.message }, true);
+            }
+        }
+
+        /**
+         * 商品削除
+         */
+        async function deleteProduct() {
+            const id = parseInt(document.getElementById('delete-id').value);
+
+            if (!id) {
+                alert('商品IDは必須です。');
+                return;
+            }
+
+            if (!confirm(`商品ID ${id} を削除しますか？\nこの操作は取り消せません。`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(API_KEY ? { 'X-API-KEY': API_KEY } : {})
+                    },
+                    body: JSON.stringify({
+                        id: id
+                    })
+                });
+
+                const data = await response.json();
+                displayResult('result-delete', data, !data.success);
+
+            } catch (error) {
+                displayResult('result-delete', { error: error.message }, true);
+            }
+        }
+
+        // ページロード時に商品一覧を取得
+        window.addEventListener('DOMContentLoaded', () => {
+            // getProducts();
+        });
+    </script>
+</body>
+</html>
