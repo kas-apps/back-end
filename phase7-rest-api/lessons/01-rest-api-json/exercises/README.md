@@ -755,7 +755,7 @@ JavaScriptからAPIを呼び出すHTMLテストページを作成してくださ
                     },
                     body: JSON.stringify({
                         name: 'Apple Watch',
-                        description': 'スマートウォッチ',
+                        description: 'スマートウォッチ',
                         price: 59800,
                         stock: 20
                     })
