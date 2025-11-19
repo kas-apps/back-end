@@ -61,6 +61,7 @@ if ($user) {
 ```
 
 **要件**：
+
 - プリペアドステートメントに書き換える
 - `bindParam()`でパラメータをバインド
 - try-catchでエラーハンドリング
@@ -69,12 +70,14 @@ if ($user) {
 **攻撃例を理解しよう**：
 
 攻撃者が以下を入力すると：
-```
+
+```text
 username: admin' --
 password: （何でも）
 ```
 
 脆弱なコードでは：
+
 ```sql
 SELECT * FROM users WHERE username = 'admin' --' AND password = '...'
 -- コメントアウトされ、パスワードチェックが無効化される！
@@ -99,6 +102,7 @@ echo "コメント: " . $comment;
 ```
 
 **要件**：
+
 - `htmlspecialchars()`を使ってエスケープ
 - `ENT_QUOTES`と`UTF-8`を指定
 - フォームとPHP処理を1ファイルにまとめる
@@ -107,14 +111,17 @@ echo "コメント: " . $comment;
 **攻撃例を理解しよう**：
 
 攻撃者が以下を入力すると：
+
 ```html
 <script>alert('XSS攻撃！');</script>
 ```
 
 脆弱なコードでは：
+
 - JavaScriptが実行されてしまう！
 
 対策後は：
+
 - `&lt;script&gt;`として表示され、実行されない
 
 ---
@@ -126,6 +133,7 @@ echo "コメント: " . $comment;
 ユーザー情報を更新するフォームにCSRF対策を実装してください。
 
 **要件**：
+
 - CSRFトークンを生成（`bin2hex(random_bytes(32))`）
 - セッションに保存
 - フォームにhidden項目として埋め込む
@@ -164,12 +172,14 @@ if (!hash_equals($_SESSION['csrf_token'], $token)) {
 **要件**：
 
 **登録処理**：
+
 - `password_hash()`でパスワードをハッシュ化
 - `PASSWORD_DEFAULT`（bcrypt）を使用
 - ハッシュ化されたパスワードをデータベースに保存
 - 平文パスワードは絶対に保存しない
 
 **ログイン処理**：
+
 - `password_verify()`でパスワードを検証
 - ユーザー名でユーザーを検索
 - `password_verify($password, $user['password_hash'])`で検証
@@ -207,6 +217,7 @@ if ($user && password_verify($password, $user['password_hash'])) {
 ログイン機能にセッションハイジャック対策を実装してください。
 
 **要件**：
+
 - ログイン成功時に`session_regenerate_id(true)`を実行
 - セッション固定攻撃を防ぐ
 - 定期的にセッションIDを再生成（30分ごと）
@@ -244,6 +255,7 @@ session_destroy();
 ユーザー登録フォームに包括的なバリデーションを実装してください。
 
 **要件**：
+
 - ユーザー名：3文字以上、50文字以下、英数字とアンダースコアのみ
 - メールアドレス：`filter_var()`で検証
 - パスワード：8文字以上、大文字・小文字・数字を含む
@@ -293,6 +305,7 @@ if ($password !== $password_confirm) {
 以下の5つのセキュリティ対策をすべて実装した、セキュアなユーザー登録・ログインシステムを作成してください。
 
 **5つのセキュリティ対策**：
+
 1. **SQLインジェクション対策**：プリペアドステートメント
 2. **XSS対策**：`htmlspecialchars()`
 3. **CSRF対策**：CSRFトークン
@@ -300,12 +313,14 @@ if ($password !== $password_confirm) {
 5. **セッション管理**：`session_regenerate_id()`
 
 **必要なページ**：
+
 - `register.php`：ユーザー登録
 - `login.php`：ログイン
 - `dashboard.php`：ログイン後のダッシュボード（ログイン必須）
 - `logout.php`：ログアウト
 
 **セキュリティチェックリスト**：
+
 - [ ] すべてのSQL文でプリペアドステートメント使用
 - [ ] すべての出力で`htmlspecialchars()`使用
 - [ ] CSRFトークンを実装（登録、ログイン、更新、削除）
@@ -350,6 +365,7 @@ echo "コメントを投稿しました！";
 ```
 
 **脆弱性リスト**：
+
 1. SQLインジェクション（INSERT文）
 2. SQLインジェクション（SELECT文）
 3. XSS（出力時）
@@ -368,6 +384,7 @@ echo "コメントを投稿しました！";
 セッションクッキーをより安全に設定してください。
 
 **要件**：
+
 - `session_set_cookie_params()`でクッキーを設定
 - `httponly`：JavaScriptからアクセス不可（XSS対策）
 - `secure`：HTTPS通信のみ（盗聴対策）※本番環境のみ
@@ -427,6 +444,7 @@ session_start();
    - 確認メッセージ
 
 **セキュリティ要件**：
+
 - **SQLインジェクション対策**：すべてプリペアドステートメント
 - **XSS対策**：すべての出力で`htmlspecialchars()`
 - **CSRF対策**：すべてのフォームでトークン検証
@@ -437,7 +455,7 @@ session_start();
 
 **ファイル構成例**：
 
-```
+```text
 /secure-blog/
 ├── config.php              # データベース接続
 ├── functions.php           # 共通関数（セキュリティ関数）
@@ -476,28 +494,33 @@ session_start();
 ### セキュリティチェックリスト
 
 ✅ **SQLインジェクション対策**
+
 - [ ] すべてのSQL文でプリペアドステートメント使用
 - [ ] `prepare()`と`bindParam()`または`execute([])`
 - [ ] 直接SQL文に変数を埋め込んでいないか
 
 ✅ **XSS対策**
+
 - [ ] すべての出力で`htmlspecialchars()`使用
 - [ ] `ENT_QUOTES`と`UTF-8`を指定
 - [ ] ユーザー入力をそのまま表示していないか
 
 ✅ **CSRF対策**
+
 - [ ] CSRFトークンを生成（`bin2hex(random_bytes(32))`）
 - [ ] セッションに保存
 - [ ] フォームにhidden項目として埋め込む
 - [ ] `hash_equals()`で検証
 
 ✅ **パスワード保護**
+
 - [ ] `password_hash()`でハッシュ化
 - [ ] `PASSWORD_DEFAULT`を使用
 - [ ] `password_verify()`で検証
 - [ ] 平文パスワードを保存していないか
 
 ✅ **セッション管理**
+
 - [ ] ログイン成功時に`session_regenerate_id(true)`
 - [ ] 定期的にセッションIDを再生成
 - [ ] ログアウト時に`session_destroy()`

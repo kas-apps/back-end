@@ -144,23 +144,26 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 #### 💡 コードのポイント
 
 1. **OFFSETの計算**
-```php
-$offset = ($current_page - 1) * $per_page;
-// ページ1: (1 - 1) * 10 = 0  → 0件スキップ（1〜10件目）
-// ページ2: (2 - 1) * 10 = 10 → 10件スキップ（11〜20件目）
-// ページ3: (3 - 1) * 10 = 20 → 20件スキップ（21〜30件目）
-```
+
+    ```php
+    $offset = ($current_page - 1) * $per_page;
+    // ページ1: (1 - 1) * 10 = 0  → 0件スキップ（1〜10件目）
+    // ページ2: (2 - 1) * 10 = 10 → 10件スキップ（11〜20件目）
+    // ページ3: (3 - 1) * 10 = 20 → 20件スキップ（21〜30件目）
+    ```
 
 2. **bindValue() vs bindParam()**
-```php
-// ✅ 推奨: bindValue() - 値渡し
-$stmt->bindValue(':limit', $per_page, PDO::PARAM_INT);
 
-// ❌ 避ける: bindParam() - 参照渡し（変数が変わると問題）
-$stmt->bindParam(':limit', $per_page, PDO::PARAM_INT);
-```
+    ```php
+    // ✅ 推奨: bindValue() - 値渡し
+    $stmt->bindValue(':limit', $per_page, PDO::PARAM_INT);
+
+    // ❌ 避ける: bindParam() - 参照渡し（変数が変わると問題）
+    $stmt->bindParam(':limit', $per_page, PDO::PARAM_INT);
+    ```
 
 3. **LIMIT/OFFSETに型指定が必要**
+
 ```php
 // PDO::PARAM_INT を指定しないとエラーになる場合がある
 $stmt->bindValue(':limit', $per_page, PDO::PARAM_INT);
@@ -173,7 +176,7 @@ $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 
 ページングは大量のデータを小分けにして表示する技術です。
 
-```
+```text
 全100件のデータがある場合（1ページ10件）:
 
 ページ1: LIMIT 10 OFFSET 0  → 1〜10件目
@@ -359,50 +362,53 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 #### 💡 コードのポイント
 
 1. **総ページ数の計算**
-```php
-$total_pages = ceil($total_count / $per_page);
 
-// 例：
-// 100件 ÷ 10件/ページ = 10ページ
-// 105件 ÷ 10件/ページ = 10.5 → ceil() で11ページ
-// 95件 ÷ 10件/ページ = 9.5 → ceil() で10ページ
-```
+    ```php
+    $total_pages = ceil($total_count / $per_page);
+
+    // 例：
+    // 100件 ÷ 10件/ページ = 10ページ
+    // 105件 ÷ 10件/ページ = 10.5 → ceil() で11ページ
+    // 95件 ÷ 10件/ページ = 9.5 → ceil() で10ページ
+    ```
 
 2. **ceil() 関数の重要性**
-```php
-// ceil() は切り上げ関数
-ceil(10.1) // 11
-ceil(10.5) // 11
-ceil(10.9) // 11
-ceil(10.0) // 10
 
-// ❌ floor() や round() は使わない
-floor(10.9) // 10 - 最後の0.9ページ分が表示されない！
-round(10.4) // 10 - 同様に表示されないデータが出る
-```
+    ```php
+    // ceil() は切り上げ関数
+    ceil(10.1) // 11
+    ceil(10.5) // 11
+    ceil(10.9) // 11
+    ceil(10.0) // 10
+
+    // ❌ floor() や round() は使わない
+    floor(10.9) // 10 - 最後の0.9ページ分が表示されない！
+    round(10.4) // 10 - 同様に表示されないデータが出る
+    ```
 
 3. **前へ・次へボタンの条件分岐**
-```php
-// 前へボタン: ページ1では無効化
-<?php if ($current_page > 1): ?>
-    <a href="?page=<?php echo $current_page - 1; ?>">« 前へ</a>
-<?php else: ?>
-    <span class="disabled">« 前へ</span>
-<?php endif; ?>
 
-// 次へボタン: 最終ページでは無効化
-<?php if ($current_page < $total_pages): ?>
-    <a href="?page=<?php echo $current_page + 1; ?>">次へ »</a>
-<?php else: ?>
-    <span class="disabled">次へ »</span>
-<?php endif; ?>
-```
+    ```php
+    // 前へボタン: ページ1では無効化
+    <?php if ($current_page > 1): ?>
+        <a href="?page=<?php echo $current_page - 1; ?>">« 前へ</a>
+    <?php else: ?>
+        <span class="disabled">« 前へ</span>
+    <?php endif; ?>
+
+    // 次へボタン: 最終ページでは無効化
+    <?php if ($current_page < $total_pages): ?>
+        <a href="?page=<?php echo $current_page + 1; ?>">次へ »</a>
+    <?php else: ?>
+        <span class="disabled">次へ »</span>
+    <?php endif; ?>
+    ```
 
 #### 🎓 学習ポイント
 
 **総ページ数の計算例**
 
-```
+```text
 100件のデータ、1ページ10件の場合:
 総ページ数 = ceil(100 / 10) = ceil(10) = 10ページ
 
@@ -615,34 +621,37 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 #### 💡 コードのポイント
 
 1. **ページ番号リンクの生成**
-```php
-<?php for ($i = 1; $i <= $total_pages; $i++): ?>
-    <?php if ($i === $current_page): ?>
-        <!-- 現在のページは強調表示（リンクなし） -->
-        <strong><?php echo $i; ?></strong>
-    <?php else: ?>
-        <!-- 他のページはリンク -->
-        <a href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
-    <?php endif; ?>
-<?php endfor; ?>
-```
+
+    ```php
+    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+        <?php if ($i === $current_page): ?>
+            <!-- 現在のページは強調表示（リンクなし） -->
+            <strong><?php echo $i; ?></strong>
+        <?php else: ?>
+            <!-- 他のページはリンク -->
+            <a href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+        <?php endif; ?>
+    <?php endfor; ?>
+    ```
 
 2. **Flexboxでのレイアウト**
-```css
-.pagination {
-    display: flex;
-    justify-content: center;  /* 中央揃え */
-    align-items: center;       /* 垂直方向の中央揃え */
-    gap: 5px;                  /* 要素間の間隔 */
-    flex-wrap: wrap;           /* ページ数が多い場合は折り返し */
-}
-```
+
+    ```css
+    .pagination {
+        display: flex;
+        justify-content: center;  /* 中央揃え */
+        align-items: center;       /* 垂直方向の中央揃え */
+        gap: 5px;                  /* 要素間の間隔 */
+        flex-wrap: wrap;           /* ページ数が多い場合は折り返し */
+    }
+    ```
 
 #### 🎓 学習ポイント
 
 **ページネーションのUI/UXデザイン**
 
 良いページネーションの条件：
+
 1. **現在のページが明確**: 強調表示やスタイルで区別
 2. **前へ・次へが分かりやすい**: 記号（«, »）で視覚的に表現
 3. **無効な操作を防ぐ**: 最初/最後のページでボタンを無効化
@@ -871,46 +880,49 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 #### 💡 コードのポイント
 
 1. **省略表示のロジック**
-```php
-$range = 2; // 現在のページの前後2ページを表示
-$start = max(1, $current_page - $range);
-$end = min($total_pages, $current_page + $range);
 
-// 例: 現在10ページ目、総20ページの場合
-// $start = max(1, 10 - 2) = 8
-// $end = min(20, 10 + 2) = 12
-// 結果: 8 9 10 11 12 が表示される
-```
+    ```php
+    $range = 2; // 現在のページの前後2ページを表示
+    $start = max(1, $current_page - $range);
+    $end = min($total_pages, $current_page + $range);
+
+    // 例: 現在10ページ目、総20ページの場合
+    // $start = max(1, 10 - 2) = 8
+    // $end = min(20, 10 + 2) = 12
+    // 結果: 8 9 10 11 12 が表示される
+    ```
 
 2. **省略記号（...）の表示条件**
-```php
-// 最初のページとの間に隙間がある場合
-if ($start > 1) {
-    echo '<a href="?page=1">1</a>';
-    if ($start > 2) {
-        // ページ1と表示範囲の間に2ページ以上の隙間がある
-        echo '<span class="ellipsis">...</span>';
+
+    ```php
+    // 最初のページとの間に隙間がある場合
+    if ($start > 1) {
+        echo '<a href="?page=1">1</a>';
+        if ($start > 2) {
+            // ページ1と表示範囲の間に2ページ以上の隙間がある
+            echo '<span class="ellipsis">...</span>';
+        }
     }
-}
-```
+    ```
 
 3. **表示パターンの例**
-```
-ページ1の場合（range=2）:
-1 2 3 ... 20
 
-ページ2の場合:
-1 2 3 4 ... 20
+    ```text
+    ページ1の場合（range=2）:
+    1 2 3 ... 20
 
-ページ10の場合:
-1 ... 8 9 10 11 12 ... 20
+    ページ2の場合:
+    1 2 3 4 ... 20
 
-ページ19の場合:
-1 ... 17 18 19 20
+    ページ10の場合:
+    1 ... 8 9 10 11 12 ... 20
 
-ページ20の場合:
-1 ... 18 19 20
-```
+    ページ19の場合:
+    1 ... 17 18 19 20
+
+    ページ20の場合:
+    1 ... 18 19 20
+    ```
 
 #### 🎓 学習ポイント
 
@@ -1200,34 +1212,37 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 #### 💡 コードのポイント
 
 1. **ホワイトリスト方式によるバリデーション**
-```php
-// 許可する値を配列で定義
-$allowed_per_page = [10, 25, 50, 100];
 
-// ユーザー入力をチェック
-if (!in_array($per_page, $allowed_per_page, true)) {
-    $per_page = 10; // 不正な値ならデフォルトに戻す
-}
-```
+    ```php
+    // 許可する値を配列で定義
+    $allowed_per_page = [10, 25, 50, 100];
+
+    // ユーザー入力をチェック
+    if (!in_array($per_page, $allowed_per_page, true)) {
+        $per_page = 10; // 不正な値ならデフォルトに戻す
+    }
+    ```
 
 2. **すべてのリンクにper_pageパラメータを追加**
-```php
-// ページネーションリンク
-<a href="?page=<?php echo $i; ?>&per_page=<?php echo $per_page; ?>">
 
-// 次へボタン
-<a href="?page=<?php echo $current_page + 1; ?>&per_page=<?php echo $per_page; ?>">
+    ```php
+    // ページネーションリンク
+    <a href="?page=<?php echo $i; ?>&per_page=<?php echo $per_page; ?>">
 
-// 表示件数変更時はページ1に戻る
-<select onchange="location.href='?page=1&per_page=' + this.value;">
-```
+    // 次へボタン
+    <a href="?page=<?php echo $current_page + 1; ?>&per_page=<?php echo $per_page; ?>">
+
+    // 表示件数変更時はページ1に戻る
+    <select onchange="location.href='?page=1&per_page=' + this.value;">
+    ```
 
 3. **selectタグでの選択状態の維持**
-```php
-<option value="<?php echo $option; ?>" <?php echo ($option === $per_page) ? 'selected' : ''; ?>>
-    <?php echo $option; ?>件表示
-</option>
-```
+
+    ```php
+    <option value="<?php echo $option; ?>" <?php echo ($option === $per_page) ? 'selected' : ''; ?>>
+        <?php echo $option; ?>件表示
+    </option>
+    ```
 
 #### 🎓 学習ポイント
 
@@ -1554,40 +1569,43 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 #### 💡 コードのポイント
 
 1. **LIKE検索のパターン**
-```php
-// ユーザー入力
-$keyword = $_GET['keyword'] ?? '';
 
-// LIKE検索用のパターン（部分一致）
-$search_pattern = '%' . $keyword . '%';
+    ```php
+    // ユーザー入力
+    $keyword = $_GET['keyword'] ?? '';
 
-// プリペアドステートメントで安全に検索
-$stmt = $pdo->prepare("SELECT * FROM articles WHERE title LIKE :keyword OR content LIKE :keyword");
-$stmt->bindValue(':keyword', $search_pattern, PDO::PARAM_STR);
-```
+    // LIKE検索用のパターン（部分一致）
+    $search_pattern = '%' . $keyword . '%';
+
+    // プリペアドステートメントで安全に検索
+    $stmt = $pdo->prepare("SELECT * FROM articles WHERE title LIKE :keyword OR content LIKE :keyword");
+    $stmt->bindValue(':keyword', $search_pattern, PDO::PARAM_STR);
+    ```
 
 2. **URLエンコードの使い分け**
-```php
-// URLパラメータ: urlencode()
-<a href="?page=1&keyword=<?php echo urlencode($keyword); ?>">
 
-// HTML表示: htmlspecialchars()
-<p>検索キーワード: <?php echo htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8'); ?></p>
-```
+    ```php
+    // URLパラメータ: urlencode()
+    <a href="?page=1&keyword=<?php echo urlencode($keyword); ?>">
+
+    // HTML表示: htmlspecialchars()
+    <p>検索キーワード: <?php echo htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8'); ?></p>
+    ```
 
 3. **検索結果が0件の場合の処理**
-```php
-<?php if (empty($articles)): ?>
-    <div class="no-results">
-        <p>記事が見つかりませんでした。</p>
-        <?php if (!empty($keyword)): ?>
-            <p><a href="?">すべての記事を表示</a></p>
-        <?php endif; ?>
-    </div>
-<?php else: ?>
-    <!-- 記事一覧を表示 -->
-<?php endif; ?>
-```
+
+    ```php
+    <?php if (empty($articles)): ?>
+        <div class="no-results">
+            <p>記事が見つかりませんでした。</p>
+            <?php if (!empty($keyword)): ?>
+                <p><a href="?">すべての記事を表示</a></p>
+            <?php endif; ?>
+        </div>
+    <?php else: ?>
+        <!-- 記事一覧を表示 -->
+    <?php endif; ?>
+    ```
 
 #### 🎓 学習ポイント
 
@@ -2229,21 +2247,25 @@ echo json_encode($articles);
 **Lesson 05で学んだこと**
 
 ✅ **基礎編**
+
 - LIMIT/OFFSETを使った基本的なページング
 - 総ページ数の計算とページネーションリンク
 - 前へ・次へボタンの実装
 
 ✅ **応用編**
+
 - 省略表示（...）を使った効率的なページネーション
 - 表示件数の変更機能
 - 検索機能とページングの組み合わせ
 
 ✅ **セキュリティ**
+
 - ホワイトリスト方式によるバリデーション
 - プリペアドステートメントでのSQLインジェクション対策
 - urlencode() と htmlspecialchars() の使い分け
 
 ✅ **総合**
+
 - 再利用可能な関数の作成
 - 複数の条件を組み合わせた検索システム
 - 無限スクロールによるモダンなUI
@@ -2251,8 +2273,8 @@ echo json_encode($articles);
 **次のステップ**
 
 ページング処理をマスターしたら、次は：
+
 1. **Phase 6**: 実践プロジェクトで統合的なアプリケーションを構築
 2. **Phase 7**: REST APIでさらに発展的な実装に挑戦
 
 **Let's vibe and code! 🚀**
-

@@ -11,6 +11,7 @@
 ### 問題4-1：SQLインジェクション対策 - 解答例
 
 **❌ 脆弱なコード**（再掲）：
+
 ```php
 <?php
 // 危険！SQLインジェクションの脆弱性あり
@@ -20,7 +21,8 @@ $result = $pdo->query($sql);
 ```
 
 **攻撃例**：
-```
+
+```text
 ?email=test@example.com' OR '1'='1
 → SELECT * FROM users WHERE email = 'test@example.com' OR '1'='1'
 → すべてのユーザー情報が漏洩！
@@ -65,6 +67,7 @@ try {
 ```
 
 **✅ セキュリティポイント**：
+
 - ✅ **プリペアドステートメント**：SQL文とデータを分離
 - ✅ **パラメータバインド**：`:email`プレースホルダーを使用
 - ✅ **型指定**：`PDO::PARAM_STR`で文字列として扱う
@@ -72,12 +75,14 @@ try {
 - ✅ **エラーハンドリング**：詳細なエラーメッセージを表示しない
 
 **💡 コードのポイント**：
+
 - `prepare()`でSQL文のテンプレートを作成
 - `bindParam()`でプレースホルダーに値をバインド
 - `execute()`で実際にクエリを実行
 - SQL文と値が完全に分離されているため、攻撃コードが実行されない
 
 **🎓 プリペアドステートメントの仕組み**：
+
 ```php
 // ❌ 危険：文字列連結
 $sql = "SELECT * FROM users WHERE email = '$email'";
@@ -94,6 +99,7 @@ $stmt->execute([':email' => $email]);
 ### 問題4-2：XSS対策（クロスサイトスクリプティング）- 解答例
 
 **❌ 脆弱なコード**：
+
 ```php
 <?php
 // 危険！XSSの脆弱性あり
@@ -103,7 +109,8 @@ echo "こんにちは、" . $name . "さん！";
 ```
 
 **攻撃例**：
-```
+
+```text
 name=<script>alert('XSS攻撃！')</script>
 → こんにちは、<script>alert('XSS攻撃！')</script>さん！
 → JavaScriptコードが実行される！
@@ -112,6 +119,7 @@ name=<script>alert('XSS攻撃！')</script>
 **✅ セキュアな解答**：
 
 **display_name.php**：
+
 ```php
 <?php
 require_once 'config.php';
@@ -148,6 +156,7 @@ try {
 ```
 
 **コメント表示（view_comments.php）**：
+
 ```php
 <?php
 require_once 'config.php';
@@ -174,6 +183,7 @@ try {
 ```
 
 **✅ セキュリティポイント**：
+
 - ✅ **htmlspecialchars()**：特殊文字をHTMLエンティティに変換
 - ✅ **ENT_QUOTES**：シングルクォートとダブルクォートの両方をエスケープ
 - ✅ **UTF-8指定**：文字コードを明示的に指定
@@ -181,6 +191,7 @@ try {
 - ✅ **すべての出力をエスケープ**：信頼できないデータは必ずエスケープ
 
 **💡 コードのポイント**：
+
 ```php
 // htmlspecialchars()の動作
 $name = "<script>alert('XSS')</script>";
@@ -190,6 +201,7 @@ echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
 ```
 
 **🎓 XSS攻撃の種類**：
+
 1. **Reflected XSS（反射型）**：URLパラメータからの攻撃
 2. **Stored XSS（格納型）**：データベースに保存された攻撃コード
 3. **DOM-based XSS**：JavaScriptでのDOM操作による攻撃
@@ -201,6 +213,7 @@ echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
 ### 問題4-3：CSRF対策（クロスサイトリクエストフォージェリ）- 解答例
 
 **❌ 脆弱なコード**：
+
 ```php
 <?php
 // 危険！CSRF攻撃の脆弱性あり
@@ -215,17 +228,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 **攻撃例**：
 悪意のあるサイトから以下のHTMLを送信：
+
 ```html
 <form action="https://target-site.com/change_email.php" method="POST">
     <input type="hidden" name="email" value="attacker@evil.com">
     <script>document.forms[0].submit();</script>
 </form>
 ```
+
 → ユーザーが気づかないうちにメールアドレスが変更される！
 
 **✅ セキュアな解答**：
 
 **change_email_form.php**（フォーム表示）：
+
 ```php
 <?php
 session_start();
@@ -259,6 +275,7 @@ if (empty($_SESSION['csrf_token'])) {
 ```
 
 **change_email_process.php**（処理実行）：
+
 ```php
 <?php
 session_start();
@@ -311,6 +328,7 @@ try {
 ```
 
 **✅ セキュリティポイント**：
+
 - ✅ **CSRFトークン生成**：`bin2hex(random_bytes(32))`で推測不可能なトークン
 - ✅ **トークン検証**：`hash_equals()`でタイミング攻撃対策
 - ✅ **ワンタイムトークン**：処理後にトークンを再生成
@@ -318,6 +336,7 @@ try {
 - ✅ **ログイン確認**：セッションでユーザー認証を確認
 
 **💡 コードのポイント**：
+
 ```php
 // ❌ 危険：単純な比較（タイミング攻撃の可能性）
 if ($_SESSION['csrf_token'] === $token) { ... }
@@ -327,6 +346,7 @@ if (hash_equals($_SESSION['csrf_token'], $token)) { ... }
 ```
 
 **🎓 CSRF対策の原則**：
+
 1. **すべての状態変更操作にCSRFトークンを使用**（POST, PUT, DELETEなど）
 2. **トークンはセッションに保存**
 3. **トークンはランダム生成**（`random_bytes()`）
@@ -338,6 +358,7 @@ if (hash_equals($_SESSION['csrf_token'], $token)) { ... }
 ### 問題4-4：パスワードハッシュ化 - 解答例
 
 **❌ 脆弱なコード**：
+
 ```php
 <?php
 // 危険！平文パスワードの保存
@@ -348,6 +369,7 @@ $stmt->execute([':email' => $email, ':password' => $password]);
 ```
 
 **危険性**：
+
 - データベースが漏洩したらパスワードが丸見え
 - 管理者もユーザーのパスワードを見ることができる
 - 他のサイトで同じパスワードを使っている場合、そちらも危険
@@ -355,6 +377,7 @@ $stmt->execute([':email' => $email, ':password' => $password]);
 **✅ セキュアな解答**：
 
 **register.php**（ユーザー登録）：
+
 ```php
 <?php
 require_once 'config.php';
@@ -453,6 +476,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ```
 
 **login.php**（ログイン）：
+
 ```php
 <?php
 require_once 'config.php';
@@ -531,6 +555,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ```
 
 **✅ セキュリティポイント**：
+
 - ✅ **password_hash()**：強力なハッシュアルゴリズム（bcrypt）を使用
 - ✅ **PASSWORD_DEFAULT**：PHPの推奨アルゴリズムを自動選択
 - ✅ **password_verify()**：タイミング攻撃に強い検証
@@ -539,6 +564,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 - ✅ **エラーメッセージ**：「メールアドレスまたはパスワードが正しくありません」（どちらが間違っているか特定させない）
 
 **💡 コードのポイント**：
+
 ```php
 // password_hash() の出力例
 $hash = password_hash('MyPassword123', PASSWORD_DEFAULT);
@@ -554,6 +580,7 @@ password_verify('MyPassword123', $hash); // true
 ```
 
 **🎓 パスワードハッシュのベストプラクティス**：
+
 1. **password_hash()を使う**（自前でハッシュ化しない）
 2. **PASSWORD_DEFAULTを使う**（将来のアルゴリズム変更に対応）
 3. **絶対にMD5やSHA1を使わない**（脆弱）
@@ -567,6 +594,7 @@ password_verify('MyPassword123', $hash); // true
 ### 問題4-5：セッション管理（セッションハイジャック対策）- 解答例
 
 **❌ 脆弱なコード**：
+
 ```php
 <?php
 // 危険！セッションハイジャックの脆弱性
@@ -579,6 +607,7 @@ $_SESSION['user_id'] = $user['id'];
 **✅ セキュアな解答**：
 
 **secure_session.php**（共通セッション管理）：
+
 ```php
 <?php
 /**
@@ -677,6 +706,7 @@ function requireLogin() {
 ```
 
 **使用例（dashboard.php）**：
+
 ```php
 <?php
 require_once 'config.php';
@@ -707,6 +737,7 @@ requireLogin();
 ```
 
 **logout.php**：
+
 ```php
 <?php
 require_once 'secure_session.php';
@@ -721,6 +752,7 @@ exit;
 ```
 
 **✅ セキュリティポイント**：
+
 - ✅ **session_regenerate_id()**：ログイン時にセッションIDを再生成
 - ✅ **HttpOnly クッキー**：JavaScriptからセッションIDを読めなくする
 - ✅ **セッションタイムアウト**：30分間操作がない場合、自動ログアウト
@@ -728,6 +760,7 @@ exit;
 - ✅ **セキュアなログアウト**：セッション変数とクッキーを完全に削除
 
 **💡 コードのポイント**：
+
 ```php
 // session_regenerate_id(true) の動作
 session_regenerate_id(true);  // 引数 true で古いセッションファイルを削除
@@ -738,6 +771,7 @@ session_regenerate_id(true);  // 引数 true で古いセッションファイ�
 ```
 
 **🎓 セッションセキュリティのベストプラクティス**：
+
 1. **ログイン時に`session_regenerate_id()`**
 2. **HttpOnlyクッキーを有効化**
 3. **HTTPS環境では`session.cookie_secure`を1に**
@@ -752,6 +786,7 @@ session_regenerate_id(true);  // 引数 true で古いセッションファイ�
 **✅ セキュアな解答**：
 
 **validation_functions.php**（バリデーション関数集）：
+
 ```php
 <?php
 /**
@@ -901,6 +936,7 @@ function displayErrors($errors) {
 ```
 
 **使用例（user_profile_form.php）**：
+
 ```php
 <?php
 require_once 'config.php';
@@ -992,6 +1028,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ```
 
 **✅ セキュリティポイント**：
+
 - ✅ **個別バリデーション関数**：再利用可能で保守しやすい
 - ✅ **filter_var()**：PHPの組み込みフィルタを活用
 - ✅ **正規表現**：複雑なパターンマッチング
@@ -1000,6 +1037,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 - ✅ **trim()**：前後の空白を削除
 
 **💡 コードのポイント**：
+
 ```php
 // filter_var() の活用例
 filter_var('test@example.com', FILTER_VALIDATE_EMAIL);  // true
@@ -1022,6 +1060,7 @@ preg_match('/^https?:\/\//', 'https://...');  // true（http/https）
 すべてのセキュリティ対策を組み合わせた完全なシステムを作成します。
 
 **secure_blog_post.php**（ブログ記事投稿）：
+
 ```php
 <?php
 require_once 'config.php';
@@ -1150,6 +1189,7 @@ try {
 ```
 
 **blog_list.php**（ブログ記事一覧）：
+
 ```php
 <?php
 require_once 'config.php';
@@ -1221,6 +1261,7 @@ try {
 ```
 
 **✅ セキュリティポイント（統合）**：
+
 1. ✅ **SQLインジェクション対策**：プリペアドステートメント
 2. ✅ **XSS対策**：`htmlspecialchars()`で全出力をエスケープ
 3. ✅ **CSRF対策**：トークン検証と再生成
@@ -1234,6 +1275,7 @@ try {
 ### 問題4-8：セキュリティ脆弱性を発見して修正 - 解答例
 
 **❌ 脆弱なコード**（再掲）：
+
 ```php
 <?php
 session_start();
@@ -1302,6 +1344,7 @@ try {
 ```
 
 **✅ 修正ポイント**：
+
 1. ✅ **SQLインジェクション対策**：プリペアドステートメントを使用
 2. ✅ **XSS対策**：`htmlspecialchars()`で全出力をエスケープ
 3. ✅ **型変換**：`(int)$id`で整数に変換
@@ -1318,6 +1361,7 @@ try {
 HTTPS環境用のセキュアな設定を実装します。
 
 **secure_https_config.php**：
+
 ```php
 <?php
 /**
@@ -1399,6 +1443,7 @@ sendSecurityHeaders();
 ```
 
 **使用例（secure_login.php）**：
+
 ```php
 <?php
 require_once 'config.php';
@@ -1488,6 +1533,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ```
 
 **✅ セキュリティポイント**：
+
 - ✅ **HTTPS強制**：本番環境では自動的にHTTPSにリダイレクト
 - ✅ **セキュアクッキー**：`secure`フラグでHTTPSのみ送信
 - ✅ **HttpOnlyクッキー**：JavaScriptからアクセス不可
@@ -1505,6 +1551,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 この問題は非常に大規模なため、主要な構成要素のみを示します：
 
 **構成**：
+
 1. `config.php` - データベース接続
 2. `secure_https_config.php` - HTTPS設定
 3. `secure_session.php` - セッション管理
@@ -1519,6 +1566,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 12. `logout.php` - ログアウト
 
 **データベーススキーマ**：
+
 ```sql
 -- ユーザーテーブル
 CREATE TABLE users (
@@ -1567,51 +1615,61 @@ CREATE TABLE remember_tokens (
 **セキュリティチェックリスト**：
 
 ✅ **SQLインジェクション対策**
+
 - すべてのクエリでプリペアドステートメントを使用
 - パラメータバインドで型を指定
 
 ✅ **XSS対策**
+
 - すべての出力で`htmlspecialchars()`を使用
 - `ENT_QUOTES`と`UTF-8`を指定
 
 ✅ **CSRF対策**
+
 - すべての状態変更操作でCSRFトークンを使用
 - `hash_equals()`でトークンを検証
 - 処理後にトークンを再生成
 
 ✅ **パスワードセキュリティ**
+
 - `password_hash()`でハッシュ化
 - `PASSWORD_DEFAULT`を使用
 - パスワードポリシー（8文字以上、複雑性）
 
 ✅ **セッション管理**
+
 - ログイン時に`session_regenerate_id()`
 - セッションタイムアウト（30分）
 - User-Agent検証
 - セキュアクッキー設定
 
 ✅ **入力バリデーション**
+
 - すべての入力を検証
 - 型変換と文字数制限
 - `filter_var()`と正規表現
 
 ✅ **エラーハンドリング**
+
 - `try-catch`で例外処理
 - 詳細なエラーをログに記録
 - ユーザーにはフレンドリーなメッセージ
 
 ✅ **HTTPS設定**
+
 - 本番環境でHTTPS強制
 - セキュアクッキー
 - HSTSヘッダー
 - CSPヘッダー
 
 ✅ **データベースセキュリティ**
+
 - 外部キー制約
 - インデックス最適化
 - ON DELETE CASCADE/RESTRICT
 
 ✅ **権限管理**
+
 - ログイン必須ページで認証確認
 - 自分の記事のみ編集・削除可能
 
@@ -1622,6 +1680,7 @@ CREATE TABLE remember_tokens (
 お疲れ様でした！バックエンドセキュリティの重要な対策をすべて学びました！
 
 **学んだこと**：
+
 - ✅ SQLインジェクション対策（プリペアドステートメント）
 - ✅ XSS対策（htmlspecialchars）
 - ✅ CSRF対策（トークン検証）

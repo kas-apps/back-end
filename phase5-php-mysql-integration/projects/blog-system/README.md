@@ -7,11 +7,13 @@
 ## 🎯 実装済み機能
 
 ### ユーザー認証機能
+
 - ✅ **ユーザー登録**（register.php）：パスワードハッシュ化、バリデーション
 - ✅ **ログイン**（login.php）：パスワード検証、セッション管理
 - ✅ **ログアウト**（logout.php）：セッション破棄
 
 ### 記事管理機能（CRUD）
+
 - ✅ **記事投稿**（add.php）：タイトル、内容、カテゴリ、公開/下書き
 - ✅ **記事一覧**（index.php）：ページング、フィルタリング、検索
 - ✅ **記事詳細**（view.php）：Markdown表示、閲覧数カウント
@@ -19,12 +21,14 @@
 - ✅ **記事削除**（delete.php）：確認画面、作者のみ削除可能
 
 ### 検索・フィルタリング
+
 - カテゴリフィルタ
 - キーワード検索（タイトル・内容）
 - 自分の記事フィルタ
 - ページング（1ページ10件）
 
 ### UI機能
+
 - 公開/下書きステータス管理
 - カテゴリ別表示
 - 閲覧数の表示
@@ -36,6 +40,7 @@
 このプロジェクトは**セキュリティファースト**で設計されています：
 
 ### 1. SQLインジェクション対策 ✅
+
 - **すべてのデータベースクエリでPDOプリペアドステートメントを使用**
 - パラメータバインディング（`:placeholder`）による安全なデータ挿入
 - `PDO::ATTR_EMULATE_PREPARES => false` で真のプリペアドステートメントを強制
@@ -48,6 +53,7 @@ $stmt->execute();
 ```
 
 ### 2. XSS（クロスサイトスクリプティング）対策 ✅
+
 - **すべての出力で `htmlspecialchars()` を使用**
 - `h()` ヘルパー関数による一貫したエスケープ処理
 - `ENT_QUOTES` でシングル・ダブルクォート両方をエスケープ
@@ -58,6 +64,7 @@ $stmt->execute();
 ```
 
 ### 3. CSRF（クロスサイトリクエストフォージェリ）対策 ✅
+
 - セッションベースのCSRFトークン生成
 - すべての状態変更操作（POST）でトークン検証
 - 成功時にトークン再生成（トークンリプレイ攻撃防止）
@@ -71,6 +78,7 @@ function verifyCsrfToken($token) {
 ```
 
 ### 4. パスワード保護 ✅
+
 - **`password_hash()` による強力なハッシュ化**（bcryptアルゴリズム）
 - **`password_verify()` による安全な検証**
 - パスワードは決して平文で保存しない
@@ -87,30 +95,34 @@ if (!password_verify($password, $user['password_hash'])) {
 ```
 
 ### 5. セッションセキュリティ ✅
+
 - `session_regenerate_id(true)` でセッション固定化攻撃を防止
 - `session.cookie_httponly = 1`（JavaScriptからのアクセスを防ぐ）
 - `session.use_only_cookies = 1`（URLでのセッションID送信を禁止）
 - `session.cookie_samesite = Strict`（CSRF追加防御）
 
 ### 6. 認可チェック ✅
+
 - 記事の編集・削除は作者のみ可能
 - 下書き記事は作者のみ閲覧可能
 - すべての操作で権限チェック実施
 
 ### 7. 入力バリデーション ✅
+
 - **ホワイトリスト方式**によるステータス検証
 - メールアドレスの形式チェック（`filter_var()`）
 - タイトル・内容の長さ制限
 - 空値チェックとトリミング
 
 ### 8. エラーハンドリング ✅
+
 - データベースエラーの詳細をユーザーに見せない
 - エラーログへの記録（`error_log()`）
 - ユーザーフレンドリーなエラーメッセージ
 
 ## 📁 ファイル構成
 
-```
+```text
 blog-system/
 ├── database.sql           # データベーススキーマとサンプルデータ
 ├── config.php             # DB接続設定、CSRF関数、セキュリティ設定
@@ -185,7 +197,7 @@ define('DB_PASS', 'root');      // MAMPのデフォルトパスワード
 
 ブラウザで以下にアクセス：
 
-```
+```text
 http://localhost:8888/blog-system/
 ```
 
@@ -350,7 +362,8 @@ function getPosts($filters = [], $page = 1, $per_page = POSTS_PER_PAGE) {
 ### AIへの指示例
 
 **良い指示（セキュリティ要件を含む）**：
-```
+
+```text
 「PHPでユーザーログイン機能を実装してください。
 要件:
 - メールアドレスとパスワードで認証
@@ -361,7 +374,8 @@ function getPosts($filters = [], $page = 1, $per_page = POSTS_PER_PAGE) {
 ```
 
 **悪い指示（セキュリティ指示なし）**：
-```
+
+```text
 「ログイン機能を作って」
 ```
 
@@ -370,33 +384,39 @@ function getPosts($filters = [], $page = 1, $per_page = POSTS_PER_PAGE) {
 #### 🔒 セキュリティチェック（最優先）
 
 **認証関連**
+
 - [ ] パスワードは`password_hash()`でハッシュ化
 - [ ] パスワード検証は`password_verify()`使用
 - [ ] ログイン成功時に`session_regenerate_id(true)`
 - [ ] セッションにユーザー情報を安全に保存
 
 **データベース操作**
+
 - [ ] プリペアドステートメント使用（直接SQL埋め込みなし）
 - [ ] パラメータバインディング（`:placeholder`）
 - [ ] `PDO::PARAM_INT`、`PDO::PARAM_STR`の適切な使用
 
 **出力・入力**
+
 - [ ] 出力時の`htmlspecialchars()`使用
 - [ ] CSRF トークン検証（POST操作）
 - [ ] 入力値のバリデーション
 
 **権限チェック**
+
 - [ ] ログイン必須ページで`requireLogin()`
 - [ ] 編集・削除時に作者チェック
 - [ ] 下書き記事の閲覧制限
 
 #### ✅ 機能チェック
+
 - [ ] エラーハンドリング（try-catch）
 - [ ] NULL値の適切な処理
 - [ ] リダイレクト後のexit()
 - [ ] フラッシュメッセージでユーザーフィードバック
 
 #### 📝 コード品質チェック
+
 - [ ] 意味のある変数名
 - [ ] 適切なコメント
 - [ ] DRY原則（重複排除）
@@ -412,6 +432,7 @@ $stmt->execute([$email, $password]); // 平文で保存！
 ```
 
 **修正**：
+
 ```php
 // 安全なコード
 $password_hash = password_hash($password, PASSWORD_DEFAULT);
@@ -428,6 +449,7 @@ $_SESSION['user_id'] = $user['id'];
 ```
 
 **修正**：
+
 ```php
 // 安全なコード
 $_SESSION['user_id'] = $user['id'];
@@ -445,6 +467,7 @@ updatePost($post_id, $_POST);
 ```
 
 **修正**：
+
 ```php
 // 安全なコード
 $post = getPostById($post_id);
@@ -460,6 +483,7 @@ updatePost($post_id, $_POST);
 ### 1ページあたりの記事数を変更
 
 `config.php` 28行目：
+
 ```php
 define('POSTS_PER_PAGE', 10);  // 10を任意の数値に変更
 ```
@@ -467,6 +491,7 @@ define('POSTS_PER_PAGE', 10);  // 10を任意の数値に変更
 ### Markdown変換の拡張
 
 `view.php` の `simpleMarkdown()` 関数を拡張：
+
 ```php
 // 太字変換を追加
 $text = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $text);
@@ -478,6 +503,7 @@ $text = preg_replace('/\[(.+?)\]\((.+?)\)/', '<a href="$2">$1</a>', $text);
 ### カテゴリの追加
 
 database.sqlにカテゴリを追加：
+
 ```sql
 INSERT INTO categories (name, slug, description) VALUES
 ('新カテゴリ', 'new-category', '説明文');
@@ -512,6 +538,7 @@ INSERT INTO categories (name, slug, description) VALUES
 このブログシステムは、**セキュリティとユーザー認証を最優先**にしながら、実用的な機能を実装した教材です。
 
 **重要なポイント**：
+
 - すべてのパスワードはハッシュ化（password_hash）
 - すべてのセッション操作は安全に（session_regenerate_id）
 - すべてのデータベース操作はプリペアドステートメント
@@ -520,6 +547,7 @@ INSERT INTO categories (name, slug, description) VALUES
 - すべての操作で権限チェック
 
 **バイブコーダーとして**：
+
 - AI に明確な指示を出す（セキュリティ要件を含める）
 - 生成されたコードを必ずセキュリティチェック
 - 特に認証周りの脆弱性に注意

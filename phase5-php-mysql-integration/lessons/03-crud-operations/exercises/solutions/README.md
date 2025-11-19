@@ -164,12 +164,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 **解説**：
 
 ✅ **セキュリティポイント**
+
 - プリペアドステートメントでINSERT
 - すべての出力に`htmlspecialchars()`使用
 - バリデーション（空チェック、数値チェック）
 - try-catchでエラーハンドリング
 
 💡 **コードのポイント**
+
 - `lastInsertId()`で挿入したIDを取得
 - フォームとPHP処理を1ファイルにまとめた
 - 成功時にフォームをクリア
@@ -296,10 +298,12 @@ try {
 **解説**：
 
 ✅ **セキュリティポイント**
+
 - すべての出力に`htmlspecialchars()`使用
 - URLパラメータに`urlencode()`使用
 
 💡 **コードのポイント**
+
 - `number_format()`で価格を3桁区切り表示
 - `ORDER BY created_at DESC`で新しい順に表示
 - `count($products)`で件数を表示
@@ -448,11 +452,13 @@ try {
 **解説**：
 
 ✅ **セキュリティポイント**
+
 - IDの整数型キャスト
 - プリペアドステートメント使用
 - すべての出力に`htmlspecialchars()`使用
 
 💡 **コードのポイント**
+
 - `nl2br()`で説明の改行を表示
 - 商品が見つからない場合のエラーメッセージ
 - 見やすいカードデザイン
@@ -635,11 +641,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 **解説**：
 
 ✅ **セキュリティポイント**
+
 - プリペアドステートメントでUPDATE
 - WHERE句でIDを指定（必須！）
 - すべての出力に`htmlspecialchars()`使用
 
 💡 **コードのポイント**
+
 - GETリクエストで現在の情報を取得し、フォームに初期値として表示
 - POSTリクエストで更新処理
 - `rowCount()`で更新件数を確認
@@ -804,12 +812,14 @@ try {
 **解説**：
 
 ✅ **セキュリティポイント**
+
 - POSTメソッドで削除（GETは禁止！）
 - CSRFトークンで保護
 - `hash_equals()`で安全なトークン比較
 - WHERE句でIDを指定
 
 💡 **コードのポイント**
+
 - 確認画面を表示してから削除
 - JavaScriptの`confirm()`で二重確認
 - 削除成功時にリダイレクト
@@ -909,11 +919,13 @@ try {
 **解説**：
 
 ✅ **セキュリティポイント**
+
 - トランザクション処理で整合性を保証
 - `FOR UPDATE`で行ロック（同時アクセス対策）
 - マイナスチェック
 
 💡 **コードのポイント**
+
 - `beginTransaction()`、`commit()`、`rollBack()`
 - エラー時は自動的にロールバック
 - 同時に複数人が在庫を変更しても安全
@@ -1038,18 +1050,21 @@ try {
 ```
 
 **✅ セキュリティポイント**：
+
 - ✅ INNER JOINでリレーションを正しく結合
 - ✅ `htmlspecialchars()`でXSS対策
 - ✅ 外部キー制約でデータ整合性を保証
 - ✅ `ON DELETE SET NULL`で削除時の安全性を確保
 
 **💡 コードのポイント**：
+
 - **INNER JOIN**：カテゴリーIDが一致する商品のみ取得
 - **AS（エイリアス）**：`products.name AS product_name`でカラム名の衝突を回避
 - **ORDER BY**：最新の商品から順に表示
 - **外部キー制約**：カテゴリーが削除されたら商品のcategory_idはNULLになる
 
 **🎓 INNER JOIN vs LEFT JOIN**：
+
 ```sql
 -- INNER JOIN: カテゴリーが設定されている商品のみ取得
 SELECT * FROM products
@@ -1185,18 +1200,21 @@ try {
 ```
 
 **✅ セキュリティポイント**：
+
 - ✅ LEFT JOINでレビューがない商品も表示
 - ✅ `COUNT()`と`GROUP BY`で正確なカウント
 - ✅ `htmlspecialchars()`でXSS対策
 - ✅ `number_format()`で安全な数値表示
 
 **💡 コードのポイント**：
+
 - **LEFT JOIN**：レビューがない商品も取得（`review_count`は0になる）
 - **COUNT(reviews.id)**：レビューの数をカウント（NULLは除外される）
 - **AVG(reviews.rating)**：レビューの平均評価を計算
 - **GROUP BY products.id**：商品ごとにグループ化（集約関数を使うため）
 
 **🎓 COUNT()の注意点**：
+
 ```sql
 -- ❌ 間違い：COUNT(*)だとLEFT JOINで1になる
 SELECT products.id, COUNT(*) AS review_count
@@ -1356,6 +1374,7 @@ try {
 ```
 
 **✅ セキュリティポイント**：
+
 - ✅ プリペアドステートメントでSQLインジェクション対策
 - ✅ `(int)`キャストで型安全性を確保
 - ✅ `htmlspecialchars()`でXSS対策
@@ -1363,12 +1382,14 @@ try {
 - ✅ データが見つからない場合の適切なエラー処理
 
 **💡 コードのポイント**：
+
 - **3テーブルJOIN**：products → categories (INNER), products → reviews (LEFT)
 - **2回のクエリ**：商品情報とレビュー一覧を別々に取得（効率的）
 - **AVG()とCOUNT()**：集約関数で統計情報を計算
 - **GROUP BY**：商品ごとにグループ化して集約
 
 **🎓 JOINの順序**：
+
 ```sql
 -- 商品を起点に、カテゴリーとレビューを結合
 FROM products                                      -- 起点
@@ -1528,18 +1549,21 @@ try {
 ```
 
 **✅ セキュリティポイント**：
+
 - ✅ `(int)`キャストでSQLインジェクション対策
 - ✅ プリペアドステートメントで安全なクエリ実行
 - ✅ `htmlspecialchars()`でXSS対策
 - ✅ URLパラメータの適切な検証
 
 **💡 コードのポイント**：
+
 - **条件分岐**：category_idが0ならすべて、それ以外は特定カテゴリー
 - **動的クラス**：選択中のカテゴリーに`active`クラスを付与
 - **count()**：PHP関数で商品数を表示
 - **リンク生成**：GETパラメータでカテゴリーを切り替え
 
 **🎓 改善版（クエリを1つにまとめる）**：
+
 ```php
 // WHERE句を動的に構築する方法
 $where = "";
@@ -1680,6 +1704,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 **解説**：
 
 ✅ **セキュリティポイント**
+
 - セッションでログイン状態を管理
 - `session_regenerate_id(true)`でセッションハイジャック対策
 - 定期的にセッションIDを再生成（30分ごと）
@@ -1745,6 +1770,7 @@ try {
 **解説**：
 
 ✅ **修正のポイント**
+
 1. GETからPOSTに変更
 2. プリペアドステートメント使用
 3. 整数型キャスト
@@ -1837,12 +1863,14 @@ function verifyCsrfToken($token) {
 ### 学んだこと
 
 ✅ **CRUD操作のすべて**
+
 - Create: INSERT + `lastInsertId()`
 - Read: SELECT + `fetch()`/`fetchAll()`
 - Update: UPDATE + `rowCount()` + リダイレクト
 - Delete: DELETE + 確認画面 + CSRF対策
 
 ✅ **セキュリティ対策**
+
 - プリペアドステートメント（SQLインジェクション対策）
 - `htmlspecialchars()`（XSS対策）
 - CSRFトークン（CSRF対策）
@@ -1850,6 +1878,7 @@ function verifyCsrfToken($token) {
 - セッション管理（認証・認可）
 
 ✅ **実践的なテクニック**
+
 - PRGパターン（Post/Redirect/Get）
 - フォームの初期値設定
 - バリデーション

@@ -36,6 +36,7 @@ INSERT INTO users (name, email) VALUES
 プリペアドステートメントを使って、ユーザーIDでユーザーを検索するPHPコードを書いてください。
 
 **要件**：
+
 - `prepare()`、`bindParam()`、`execute()`を使う
 - 名前付きプレースホルダー（`:id`）を使う
 - `fetch()`でデータを1件取得
@@ -57,6 +58,7 @@ $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 ユーザー登録フォームからデータを受け取り、プリペアドステートメントでデータベースに保存するコードを書いてください。
 
 **要件**：
+
 - フォームから名前とメールアドレスを受け取る（`$_POST`）
 - プリペアドステートメントでINSERT
 - `lastInsertId()`で挿入したIDを表示
@@ -76,6 +78,7 @@ $stmt = $pdo->prepare("INSERT INTO users (name, email) VALUES (:name, :email)");
 メールアドレスのドメイン（`@example.com`）で検索して、該当するユーザーを全件取得するコードを書いてください。
 
 **要件**：
+
 - LIKE句を使う
 - `fetchAll()`で複数件取得
 - `foreach`で一覧表示
@@ -99,6 +102,7 @@ $stmt = $pdo->prepare("SELECT * FROM users WHERE email LIKE :domain");
 ユーザー情報（名前とメールアドレス）を更新するコードを書いてください。
 
 **要件**：
+
 - プリペアドステートメントでUPDATE
 - WHERE句でユーザーIDを指定（必須！）
 - 更新成功時にメッセージを表示
@@ -112,6 +116,7 @@ $stmt = $pdo->prepare("SELECT * FROM users WHERE email LIKE :domain");
 ユーザーを削除するコードを書いてください。
 
 **要件**：
+
 - プリペアドステートメントでDELETE
 - WHERE句でユーザーIDを指定（必須！）
 - 削除前に確認メッセージを表示
@@ -125,6 +130,7 @@ $stmt = $pdo->prepare("SELECT * FROM users WHERE email LIKE :domain");
 問題2-1を疑問符プレースホルダー（`?`）を使って書き換えてください。
 
 **要件**：
+
 - `?`形式のプレースホルダーを使う
 - `bindParam()`の第1引数に位置（1, 2, 3...）を指定
 
@@ -162,6 +168,7 @@ if ($user) {
 ```
 
 **要件**：
+
 - プリペアドステートメントに書き換える
 - XSS対策も含める（`htmlspecialchars()`）
 
@@ -174,6 +181,7 @@ if ($user) {
 名前とメールアドレスの両方で検索するコードを書いてください。
 
 **要件**：
+
 - WHERE句で複数条件（AND）
 - プリペアドステートメント使用
 - 両方の値をバインド
@@ -195,6 +203,7 @@ $stmt = $pdo->prepare("SELECT * FROM users WHERE name = :name AND email = :email
 以下の機能を持つユーザー検索システムを作成してください。
 
 **機能**：
+
 1. 検索フォーム（名前またはメールアドレスで検索）
 2. プリペアドステートメントでSELECT
 3. 検索結果を一覧表示（`fetchAll()`）
@@ -229,14 +238,17 @@ $stmt = $pdo->prepare("SELECT * FROM users WHERE name = :name AND email = :email
 ### チェックポイント
 
 ✅ **プリペアドステートメント**
+
 - [ ] `prepare()`が使われているか
 - [ ] プレースホルダー（`:name`または`?`）が使われているか
 - [ ] `bindParam()`または`execute()`でデータをバインドしているか
 
 ✅ **XSS対策**
+
 - [ ] 出力時に`htmlspecialchars()`が使われているか
 
 ✅ **エラーハンドリング**
+
 - [ ] try-catchが使われているか
 
 ---

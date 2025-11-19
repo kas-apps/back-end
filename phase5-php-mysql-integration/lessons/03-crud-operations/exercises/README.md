@@ -40,6 +40,7 @@ INSERT INTO products (name, description, price, stock) VALUES
 商品を登録するフォームとPHPコードを作成してください。
 
 **要件**：
+
 - HTMLフォーム（商品名、説明、価格、在庫数）
 - POSTメソッドで送信
 - プリペアドステートメントでINSERT
@@ -69,6 +70,7 @@ if (!is_numeric($price) || $price < 0) {
 すべての商品を一覧表示するPHPコードを書いてください。
 
 **要件**：
+
 - すべての商品をSELECT（`fetchAll()`）
 - HTMLテーブルで表示
 - 各商品の情報（ID、商品名、価格、在庫）を表示
@@ -108,6 +110,7 @@ echo number_format($product['price']) . "円";
 商品IDを指定して、1つの商品の詳細を表示するPHPコードを書いてください。
 
 **要件**：
+
 - URLパラメータ（`?id=1`）で商品IDを受け取る
 - プリペアドステートメントでSELECT
 - `fetch()`で1件取得
@@ -140,6 +143,7 @@ if ($id <= 0) {
 既存の商品情報を編集するフォームとPHPコードを作成してください。
 
 **要件**：
+
 - GETパラメータで商品IDを受け取る
 - 現在の商品情報をSELECTして、フォームの初期値として表示
 - POSTで編集内容を受け取り、UPDATE
@@ -167,6 +171,7 @@ exit;
 商品を削除する機能を実装してください。
 
 **要件**：
+
 - POSTメソッドで削除（GETは禁止！）
 - 商品IDを受け取る
 - プリペアドステートメントでDELETE
@@ -200,6 +205,7 @@ if (empty($_SESSION['csrf_token'])) {
 在庫数を増減させる機能を実装してください（在庫管理）。
 
 **要件**：
+
 - 商品IDと増減数を受け取る
 - 現在の在庫数を取得
 - 新しい在庫数を計算（マイナスにならないようチェック）
@@ -278,6 +284,7 @@ UPDATE products SET category_id = 2 WHERE id = 3;        -- 家電
 ```
 
 **要件**：
+
 - INNER JOINを使って商品とカテゴリーを結合
 - 商品一覧に「カテゴリー名」を表示
 - プリペアドステートメント使用
@@ -331,6 +338,7 @@ INSERT INTO reviews (product_id, user_name, rating, comment) VALUES
 ```
 
 **要件**：
+
 - LEFT JOINを使って商品とレビューを結合
 - `COUNT()`でレビュー数を計算
 - `GROUP BY`で商品ごとにグループ化
@@ -362,6 +370,7 @@ $stmt = $pdo->query("
 商品、カテゴリー、レビューの3つのテーブルを結合して、商品詳細ページを作成してください。
 
 **表示する情報**：
+
 1. 商品名
 2. カテゴリー名
 3. 価格
@@ -369,6 +378,7 @@ $stmt = $pdo->query("
 5. 平均評価（`AVG()`）
 
 **要件**：
+
 - 商品詳細ページ（URLパラメータ: `?id=1`）
 - 商品情報とカテゴリーをINNER JOIN
 - レビューをLEFT JOIN（レビューがない場合も表示）
@@ -417,6 +427,7 @@ $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
 カテゴリーでフィルタリングできる商品一覧ページを作成してください。
 
 **要件**：
+
 - URLパラメータでカテゴリーを指定（`?category_id=1`）
 - カテゴリー一覧をリンクで表示
 - 選択したカテゴリーの商品のみ表示
@@ -467,6 +478,7 @@ $products = $stmt->fetchAll();
 ログインしているユーザーのみが商品を追加・編集・削除できるように権限チェックを実装してください。
 
 **要件**：
+
 - セッションでログイン状態を管理
 - 未ログイン時は操作を禁止
 - ログインページへリダイレクト
@@ -510,6 +522,7 @@ echo "削除しました。";
 ```
 
 **要件**：
+
 - プリペアドステートメントに書き換える
 - 入力値の型チェック（整数）
 - `rowCount()`で削除件数を確認
@@ -554,6 +567,7 @@ echo "削除しました。";
    - 削除後に一覧へリダイレクト
 
 **セキュリティ要件**：
+
 - すべてプリペアドステートメント
 - すべてXSS対策（`htmlspecialchars()`）
 - CSRFトークン実装（削除、編集で）
@@ -561,13 +575,14 @@ echo "削除しました。";
 - エラーハンドリング（try-catch）
 
 **追加機能（オプション）**：
+
 - 検索機能（商品名で部分一致）
 - ソート機能（価格順、在庫順）
 - ページング（10件ずつ表示）
 
 **ファイル構成例**：
 
-```
+```text
 /crud-system/
 ├── config.php          # データベース接続
 ├── functions.php       # 共通関数（バリデーション、XSS対策など）
@@ -603,6 +618,7 @@ echo "削除しました。";
 ### チェックポイント
 
 ✅ **セキュリティチェック**
+
 - [ ] すべてのSQL文でプリペアドステートメント使用
 - [ ] すべての出力で`htmlspecialchars()`使用
 - [ ] 削除・更新はPOSTメソッド（GETは禁止）
@@ -610,12 +626,14 @@ echo "削除しました。";
 - [ ] バリデーション実施（型チェック、空チェック）
 
 ✅ **CRUD操作チェック**
+
 - [ ] Create：INSERT + `lastInsertId()`
 - [ ] Read：SELECT + `fetch()`/`fetchAll()`
 - [ ] Update：UPDATE + `rowCount()`
 - [ ] Delete：DELETE + 確認メッセージ + `rowCount()`
 
 ✅ **ユーザビリティチェック**
+
 - [ ] フォームの初期値設定（編集時）
 - [ ] 成功メッセージの表示
 - [ ] エラーメッセージの表示
@@ -696,6 +714,7 @@ exit; // リダイレクト後は必ずexit
 ```sql
 id INT AUTO_INCREMENT PRIMARY KEY
 ```
+
 → `lastInsertId()`で新しいIDを取得できる
 
 ### DECIMAL型（価格）
@@ -703,6 +722,7 @@ id INT AUTO_INCREMENT PRIMARY KEY
 ```sql
 price DECIMAL(10, 2)
 ```
+
 → 小数点以下2桁まで正確に保存（浮動小数点型は誤差あり）
 
 ### ON UPDATE CURRENT_TIMESTAMP
@@ -710,6 +730,7 @@ price DECIMAL(10, 2)
 ```sql
 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ```
+
 → 更新時に自動的に更新日時が記録される
 
 ---
