@@ -360,7 +360,7 @@
             const stock = parseInt(document.getElementById('create-stock').value);
             const description = document.getElementById('create-description').value;
 
-            if (!name || !price) {
+            if (!name || isNaN(price)) {
                 alert('商品名と価格は必須です。');
                 return;
             }
