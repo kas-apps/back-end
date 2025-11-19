@@ -133,6 +133,7 @@ echo "商品名: " . $product['name'];
 - JSON形式でレスポンス
 - ステータスコード：200 OK
 - レスポンス形式：
+
   ```json
   {
       "success": true,
@@ -565,7 +566,7 @@ API Key認証を実装してください。
 
 **リクエストヘッダー例**：
 
-```
+```text
 X-API-KEY: your-secret-api-key-12345
 ```
 
