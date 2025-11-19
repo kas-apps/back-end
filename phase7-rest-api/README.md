@@ -234,8 +234,8 @@ REST APIでもセキュリティ対策は必須！
 エンドポイント：
 - GET /api/products - 商品一覧取得
 - POST /api/products - 商品作成
-- PUT /api/products - 商品更新
-- DELETE /api/products - 商品削除
+- PUT /api/products/{id} - 商品更新
+- DELETE /api/products/{id} - 商品削除
 
 セキュリティ要件：
 - プリペアドステートメント使用
