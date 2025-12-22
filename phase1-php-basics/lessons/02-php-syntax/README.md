@@ -263,7 +263,7 @@ $value = null;  // 何も入っていない
 
 ```php
 <?php
-$userName = "太郎";
+$userName = "太郎";   // キャメルケース
 $user_name = "太郎";  // スネークケース
 $age = 25;
 $totalPrice = 1000;
@@ -335,14 +335,43 @@ echo "こんにちは、" . $fullName . "さん！";
 $a = 10;
 $b = 5;
 
-$a == $b   // false（等しくない）
-$a != $b   // true（等しくない）
-$a > $b    // true（より大きい）
-$a < $b    // false（より小さい）
-$a >= $b   // true（以上）
-$a <= $b   // false（以下）
+var_dump($a == $b);   // false（等しくない）
+var_dump($a != $b);   // true（等しくない）
+var_dump($a > $b);    // true（より大きい）
+var_dump($a < $b);    // false（より小さい）
+var_dump($a >= $b);   // true（以上）
+var_dump($a <= $b);   // false（以下）
 ?>
 ```
+
+**💡 `var_dump()` って何？**
+
+ここで初めて `var_dump()` が出てきたね！これは**変数の中身を詳しく表示する**超便利な関数だよ！
+
+**`echo` との違い**：
+
+```php
+<?php
+$value = true;
+
+echo $value;      // 「1」と表示される（わかりにくい）
+var_dump($value); // bool(true) と表示される（わかりやすい！）
+?>
+```
+
+**`var_dump()` の便利なポイント**：
+
+- ✅ データ型がわかる（`bool`、`int`、`string` など）
+- ✅ 真偽値（`true`/`false`）がはっきりわかる
+- ✅ `null` も見える（`echo` だと何も表示されない）
+- ✅ デバッグ（動作確認）に最適！
+
+**使い分け**：
+
+- **ユーザーに見せる出力**：`echo` を使う
+- **自分が確認するための出力**：`var_dump()` を使う
+
+比較演算子の結果を確認するときに `var_dump()` を使うと、`true` か `false` かがすぐにわかって便利なんだ！
 
 **`==` と `===` の違い**：
 
@@ -351,8 +380,8 @@ $a <= $b   // false（以下）
 $a = 5;
 $b = "5";
 
-$a == $b   // true（値が同じ）
-$a === $b  // false（値も型も同じかチェック）
+var_dump($a == $b);   // true（値が同じ）
+var_dump($a === $b);  // false（値も型も同じかチェック）
 ?>
 ```
 
@@ -368,13 +397,16 @@ $age = 20;
 $hasLicense = true;
 
 // AND（かつ）：両方trueならtrue
-$canDrive = ($age >= 18) && $hasLicense;  // true
+$canDrive = ($age >= 18) && $hasLicense;
+var_dump($canDrive);                 // true
 
 // OR（または）：どちらかtrueならtrue
-$isChild = ($age < 13) || ($age > 65);    // false
+$isChild = ($age < 13) || ($age > 65);
+var_dump($isChild);                  // false
 
 // NOT（否定）：trueとfalseを反転
-$isNotChild = !($age < 13);               // true
+$isNotChild = !($age < 13);
+var_dump($isNotChild);               // true
 ?>
 ```
 
